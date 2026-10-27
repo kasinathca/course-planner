@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ffcs-studio"
-version = "0.1.0"
+version = "0.2.0"
 description = "Offline-first localhost FFCS planning foundation"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -38,6 +38,8 @@ where = ["src"]
 [tool.setuptools.package-data]
 ffcs_studio = [
   "py.typed",
+  "persistence/schema/*.sql",
+  "resources/schemas/*.json",
   "web/templates/*.html",
   "web/static/css/*.css",
   "web/static/js/*.js",

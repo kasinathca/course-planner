@@ -4,22 +4,27 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
+    <meta name="ffcs-csrf" content="{{ csrf_token }}">
     <title>FFCS Studio</title>
     <link rel="stylesheet" href="/static/css/app.css">
     <script type="module" src="/static/js/app.js"></script>
   </head>
   <body>
     <header class="site-header">
-      <div class="brand">FFCS Studio</div>
-      <span class="phase">Phase 0 foundation</span>
+      <a class="brand" href="#overview">FFCS Studio</a>
+      <nav aria-label="Primary">
+        <a href="#overview">Overview</a>
+        <a href="#courses-data">Courses &amp; Data</a>
+      </nav>
+      <span class="phase">Phase 1 local data</span>
     </header>
-    <main>
-      <section class="status-card" aria-labelledby="page-title">
+    <main class="workspace">
+      <section id="overview" class="status-card" aria-labelledby="page-title">
         <p class="eyebrow">Local and offline-first</p>
         <h1 id="page-title">FFCS Studio is running</h1>
         <p class="lede">
-          The local website is ready at this loopback address. No timetable solver,
-          degree planner, or VTOP automation is active in Phase 0.
+          Import reviewed VTOP allocation files into local SQLite, then browse the exact
+          captured courses, faculty, rooms, slots, and provenance.
         </p>
         <div class="runtime-status" aria-live="polite">
           <span id="health-dot" class="status-dot" aria-hidden="true"></span>
@@ -28,13 +33,130 @@
         <dl class="metadata">
           <div><dt>Application</dt><dd>{{ app_version }}</dd></div>
           <div><dt>VTOP schema</dt><dd>{{ schema_version }}</dd></div>
-          <div><dt>Runtime</dt><dd>Python localhost</dd></div>
+          <div><dt>Database schema</dt><dd>{{ database_schema_version }}</dd></div>
         </dl>
-        <p class="next-step">
-          Validate a sanitized capture with
-          <code>python -m ffcs_studio validate examples/vtop_selected_theory_only.json</code>.
-        </p>
       </section>
+
+      <section id="courses-data" class="section-heading" aria-labelledby="courses-title">
+        <p class="eyebrow">Courses &amp; Data</p>
+        <h2 id="courses-title">Import and explore source allocations</h2>
+        <p>Validation and preview never change active records. Saving requires explicit confirmation.</p>
+      </section>
+
+      <div class="two-column">
+        <section class="panel" aria-labelledby="import-title">
+          <div class="panel-heading">
+            <div>
+              <h3 id="import-title">Import courses</h3>
+              <p>VTOP JSON v1 or flattened UTF-8 CSV</p>
+            </div>
+            <span id="import-state" class="state-pill">Empty</span>
+          </div>
+
+          <label class="file-picker" for="import-file">
+            <span>Select JSON or CSV</span>
+            <input id="import-file" type="file" accept=".json,.csv,application/json,text/csv">
+          </label>
+          <p id="selected-file" class="file-detail">No file selected.</p>
+
+          <fieldset id="csv-metadata" class="metadata-fields" hidden>
+            <legend>CSV source metadata</legend>
+            <label>Campus <input id="csv-campus" value="Vellore" maxlength="100" required></label>
+            <label>Semester <input id="csv-semester" maxlength="200" required></label>
+            <label>Capture time <input id="csv-captured-at" type="datetime-local" required></label>
+            <p>This metadata is recorded as user-supplied, not VTOP-observed.</p>
+          </fieldset>
+
+          <div class="button-row">
+            <button id="validate-button" type="button" disabled>Validate file</button>
+            <button id="preview-button" type="button" class="secondary" disabled>Preview changes</button>
+            <button id="commit-button" type="button" class="confirm" disabled>Commit import</button>
+            <button id="cancel-button" type="button" class="ghost" disabled>Cancel</button>
+          </div>
+
+          <div id="import-status" class="feedback" role="status" aria-live="polite">
+            Select a file to begin. Nothing is saved until Commit import is pressed.
+          </div>
+
+          <dl id="import-summary" class="summary-grid" hidden>
+            <div><dt>Courses</dt><dd id="summary-courses">0</dd></div>
+            <div><dt>Rows</dt><dd id="summary-rows">0</dd></div>
+            <div><dt>Warnings</dt><dd id="summary-warnings">0</dd></div>
+          </dl>
+
+          <div id="issues-panel" hidden>
+            <h4>Validation and review notes</h4>
+            <ul id="issues-list" class="issue-list"></ul>
+          </div>
+
+          <div id="preview-panel" hidden>
+            <h4>Proposed partial update</h4>
+            <dl class="summary-grid">
+              <div><dt>New courses</dt><dd id="diff-new">0</dd></div>
+              <div><dt>Updated</dt><dd id="diff-updated">0</dd></div>
+              <div><dt>Unchanged</dt><dd id="diff-unchanged">0</dd></div>
+              <div><dt>Rows added</dt><dd id="diff-added">0</dd></div>
+              <div><dt>Rows removed</dt><dd id="diff-removed">0</dd></div>
+              <div><dt>Rows modified</dt><dd id="diff-modified">0</dd></div>
+            </dl>
+            <div id="change-list" class="change-list"></div>
+          </div>
+        </section>
+
+        <section class="panel explorer" aria-labelledby="explorer-title">
+          <div class="panel-heading">
+            <div>
+              <h3 id="explorer-title">Course explorer</h3>
+              <p>Active source records from SQLite</p>
+            </div>
+            <span id="result-count" class="state-pill">0 courses</span>
+          </div>
+
+          <div class="filters">
+            <label>Semester <select id="semester-filter"><option value="">All semesters</option></select></label>
+            <label>Search <input id="search-filter" type="search" placeholder="Code or title"></label>
+            <label>Category <input id="category-filter" placeholder="PC, PE, UC…" maxlength="50"></label>
+            <label>Component
+              <select id="component-filter">
+                <option value="">All components</option>
+                <option>TH</option><option>ETH</option><option>ELA</option><option>EPJ</option><option>SS</option>
+              </select>
+            </label>
+            <button id="filter-button" type="button" class="secondary">Apply filters</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Course</th><th>Category</th><th>Components</th><th>Rows</th><th></th></tr></thead>
+              <tbody id="offerings-body">
+                <tr><td colspan="5" class="empty-cell">No imported courses yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <button id="previous-page" type="button" class="ghost" disabled>Previous</button>
+            <span id="page-label">Page 1</span>
+            <button id="next-page" type="button" class="ghost" disabled>Next</button>
+          </div>
+
+          <article id="offering-detail" class="detail-panel" hidden>
+            <div class="panel-heading">
+              <div><p class="eyebrow">Source offering</p><h4 id="detail-title"></h4></div>
+              <button id="close-detail" type="button" class="ghost">Close</button>
+            </div>
+            <p id="detail-meta" class="file-detail"></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Slot</th><th>Venue</th><th>Faculty</th><th>Component</th></tr></thead>
+                <tbody id="allocations-body"></tbody>
+              </table>
+            </div>
+            <p id="detail-missing" class="source-note"></p>
+            <ul id="detail-warnings" class="issue-list" hidden></ul>
+            <p id="detail-provenance" class="provenance"></p>
+          </article>
+        </section>
+      </div>
     </main>
     <footer>All processing remains on this computer.</footer>
   </body>

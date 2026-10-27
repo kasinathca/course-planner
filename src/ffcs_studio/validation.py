@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
@@ -46,16 +47,10 @@ class ValidationReport:
 
 
 def default_vtop_schema_path() -> Path:
-    repository_schema = Path(__file__).resolve().parents[2] / "schemas" / "vtop-export.schema.json"
-    if repository_schema.is_file():
-        return repository_schema
-    working_schema = Path.cwd() / "schemas" / "vtop-export.schema.json"
-    if working_schema.is_file():
-        return working_schema
-    raise ValidationSetupError(
-        "cannot locate schemas/vtop-export.schema.json; run from an FFCS Studio checkout "
-        "or pass --schema"
-    )
+    """Return the schema installed inside the application package."""
+
+    schema = resources.files("ffcs_studio.resources.schemas").joinpath("vtop-export.schema.json")
+    return Path(str(schema))
 
 
 def _json_pointer(parts: Iterable[object]) -> str:
@@ -105,18 +100,20 @@ def _semantic_warnings(document: Mapping[str, Any]) -> list[ValidationIssue]:
     return warnings
 
 
-def validate_json_file(
-    input_path: Path,
+def validate_json_bytes(
+    content: bytes,
     *,
+    source_name: str = "uploaded.json",
     schema_path: Path | None = None,
 ) -> ValidationReport:
-    """Validate one JSON document with precise JSON Pointer diagnostics."""
+    """Decode and validate bounded JSON bytes using the canonical schema."""
 
+    path = Path(source_name)
     try:
-        decoded = json.loads(input_path.read_text(encoding="utf-8"))
-    except OSError as exc:
-        issue = ValidationIssue("error", "file_error", "/", str(exc))
-        return ValidationReport(path=input_path, issues=(issue,))
+        decoded = json.loads(content.decode("utf-8-sig"))
+    except UnicodeDecodeError as exc:
+        issue = ValidationIssue("error", "invalid_encoding", "/", str(exc))
+        return ValidationReport(path=path, issues=(issue,))
     except json.JSONDecodeError as exc:
         issue = ValidationIssue(
             "error",
@@ -124,11 +121,21 @@ def validate_json_file(
             "/",
             f"line {exc.lineno}, column {exc.colno}: {exc.msg}",
         )
-        return ValidationReport(path=input_path, issues=(issue,))
+        return ValidationReport(path=path, issues=(issue,))
 
     if not isinstance(decoded, dict):
         issue = ValidationIssue("error", "invalid_root", "/", "document must be a JSON object")
-        return ValidationReport(path=input_path, issues=(issue,))
+        return ValidationReport(path=path, issues=(issue,))
+    return validate_mapping(decoded, source_name=source_name, schema_path=schema_path)
+
+
+def validate_mapping(
+    decoded: Mapping[str, Any],
+    *,
+    source_name: str = "document",
+    schema_path: Path | None = None,
+) -> ValidationReport:
+    """Validate an already decoded mapping with identical CLI/upload semantics."""
 
     schema = _load_schema(schema_path or default_vtop_schema_path())
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
@@ -144,7 +151,27 @@ def validate_json_file(
     ]
     if not errors:
         issues.extend(_semantic_warnings(decoded))
-    return ValidationReport(path=input_path, issues=tuple(issues), document=decoded)
+    return ValidationReport(path=Path(source_name), issues=tuple(issues), document=decoded)
+
+
+def validate_json_file(
+    input_path: Path,
+    *,
+    schema_path: Path | None = None,
+) -> ValidationReport:
+    """Validate one JSON file through the same byte-oriented upload path."""
+
+    try:
+        content = input_path.read_bytes()
+    except OSError as exc:
+        issue = ValidationIssue("error", "file_error", "/", str(exc))
+        return ValidationReport(path=input_path, issues=(issue,))
+    report = validate_json_bytes(
+        content,
+        source_name=str(input_path),
+        schema_path=schema_path,
+    )
+    return ValidationReport(path=input_path, issues=report.issues, document=report.document)
 
 
 def load_validated_snapshot(report: ValidationReport) -> ImportSnapshot:

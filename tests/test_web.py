@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import httpx
 
@@ -10,12 +12,14 @@ from ffcs_studio.web.app import create_app
 
 def request(method: str, path: str, **kwargs: object) -> httpx.Response:
     async def send() -> httpx.Response:
-        transport = httpx.ASGITransport(app=create_app(Settings(port=8765)))
-        async with httpx.AsyncClient(
-            transport=transport,
-            base_url="http://127.0.0.1:8765",
-        ) as client:
-            return await client.request(method, path, **kwargs)
+        with TemporaryDirectory() as directory:
+            settings = Settings(port=8765, data_dir=Path(directory))
+            transport = httpx.ASGITransport(app=create_app(settings))
+            async with httpx.AsyncClient(
+                transport=transport,
+                base_url="http://127.0.0.1:8765",
+            ) as client:
+                return await client.request(method, path, **kwargs)
 
     return asyncio.run(send())
 
@@ -26,7 +30,7 @@ def test_health_endpoint_is_ready_and_private() -> None:
     assert response.json() == {
         "status": "ready",
         "application": "ffcs-studio",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "schema_version": "1.0.0",
     }
     assert response.headers["cache-control"] == "no-store"

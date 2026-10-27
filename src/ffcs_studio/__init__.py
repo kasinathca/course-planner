@@ -1,4 +1,4 @@
-"""FFCS Studio Phase 0 application package."""
+"""FFCS Studio offline-first course-data application."""
 
 from ffcs_studio.version import __version__
 
