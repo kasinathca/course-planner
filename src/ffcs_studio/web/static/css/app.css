@@ -1,0 +1,92 @@
+:root {
+  color: #202124;
+  background: #f7f8fa;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  --accent: #2563eb;
+  --border: #dde2e8;
+  --muted: #5f6875;
+  --success: #19733a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.site-header {
+  min-height: 64px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #fff;
+  background: #172033;
+}
+
+.brand { font-size: 1.15rem; font-weight: 650; }
+.phase { color: #c7d2e5; font-size: 0.875rem; }
+
+main {
+  width: min(760px, calc(100% - 32px));
+  margin: auto;
+  padding: 48px 0;
+}
+
+.status-card {
+  padding: clamp(24px, 5vw, 48px);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgb(23 32 51 / 8%);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 { margin: 0; font-size: clamp(1.75rem, 4vw, 2.25rem); line-height: 1.2; }
+.lede { max-width: 62ch; color: var(--muted); }
+
+.runtime-status {
+  min-height: 44px;
+  margin: 28px 0;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #8a94a3; }
+.status-dot.ready { background: var(--success); }
+.status-dot.error { background: #b42318; }
+
+.metadata { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.metadata div { padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+.metadata dt { color: var(--muted); font-size: 0.8rem; }
+.metadata dd { margin: 4px 0 0; font-weight: 600; }
+
+.next-step { margin: 24px 0 0; }
+code { padding: 2px 5px; overflow-wrap: anywhere; color: #173c85; background: #edf3ff; border-radius: 4px; }
+footer { padding: 20px; color: var(--muted); text-align: center; font-size: 0.875rem; }
+
+@media (max-width: 620px) {
+  .site-header { padding: 0 16px; }
+  .metadata { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

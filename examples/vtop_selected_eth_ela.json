@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "source": "vtop-tampermonkey",
+  "campus": "Vellore",
+  "semester_label": "Winter Semester 2026-27",
+  "captured_at": "2000-01-01T00:00:00Z",
+  "courses": [
+    {
+      "category": "PC",
+      "course_code": "CSI3002",
+      "course_title": "Applied Cryptography and Network Security",
+      "allocations": [
+        {
+          "source_row": 1,
+          "slot": "F1",
+          "venue": "PRP219",
+          "faculty": "DILIPKUMAR S",
+          "course_type": "ETH"
+        },
+        {
+          "source_row": 2,
+          "slot": "F2",
+          "venue": "PRP219",
+          "faculty": "HASHIDA HAIDROS RAHIMA MANZIL",
+          "course_type": "ETH"
+        },
+        {
+          "source_row": 3,
+          "slot": "F1",
+          "venue": "PRP220",
+          "faculty": "HASHIDA HAIDROS RAHIMA MANZIL",
+          "course_type": "ETH"
+        },
+        {
+          "source_row": 4,
+          "slot": "F2",
+          "venue": "PRP221",
+          "faculty": "UMAMAHESWARI M",
+          "course_type": "ETH"
+        },
+        {
+          "source_row": 5,
+          "slot": "F1",
+          "venue": "PRP221",
+          "faculty": "BALAJI N",
+          "course_type": "ETH"
+        },
+        {
+          "source_row": 6,
+          "slot": "F2",
+          "venue": "PRP220",
+          "faculty": "RADHAKRISHNA MOHANTY",
+          "course_type": "ETH"
+        },
+        {
+          "source_row": 7,
+          "slot": "L27+L28",
+          "venue": "PRP352",
+          "faculty": "HASHIDA HAIDROS RAHIMA MANZIL",
+          "course_type": "ELA"
+        },
+        {
+          "source_row": 8,
+          "slot": "L27+L28",
+          "venue": "PRP233",
+          "faculty": "UMAMAHESWARI M",
+          "course_type": "ELA"
+        },
+        {
+          "source_row": 9,
+          "slot": "L41+L42",
+          "venue": "PRP352",
+          "faculty": "BALAJI N",
+          "course_type": "ELA"
+        },
+        {
+          "source_row": 10,
+          "slot": "L29+L30",
+          "venue": "PRP352",
+          "faculty": "RADHAKRISHNA MOHANTY",
+          "course_type": "ELA"
+        },
+        {
+          "source_row": 11,
+          "slot": "L57+L58",
+          "venue": "PRP352",
+          "faculty": "DILIPKUMAR S",
+          "course_type": "ELA"
+        },
+        {
+          "source_row": 12,
+          "slot": "L57+L58",
+          "venue": "PRP233",
+          "faculty": "HASHIDA HAIDROS RAHIMA MANZIL",
+          "course_type": "ELA"
+        }
+      ]
+    }
+  ]
+}

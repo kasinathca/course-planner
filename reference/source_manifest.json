@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-10-27",
+  "files": [
+    {
+      "filename": "vtop html.zip",
+      "size_bytes": 1898820,
+      "sha256": "869ec5577440f2bd4fd81a7bc07329b1966e00fdb4edcd3b383fe87517edda91"
+    },
+    {
+      "filename": "data.zip",
+      "size_bytes": 6483,
+      "sha256": "dc57358c4518de39540337ae96575718352326f65ce0f76f63f0b5ad13a253a3"
+    },
+    {
+      "filename": "my ffcsinator with node modules folder.zip",
+      "size_bytes": 20668629,
+      "sha256": "4f6a72a314d919ee37c0558d8dab531bcd43b559bd291f0e6238e42765c59dfe"
+    },
+    {
+      "filename": "FFCS_Friends_ADVT_Global_Smart_Planner.html",
+      "size_bytes": 4218989,
+      "sha256": "cc04e0da74edb35647b2c3191e7cd14fd15585b1c766aaba67b44884309f2c0b"
+    },
+    {
+      "filename": "FFCS_Friends_ADVT_Global_Smart_Planner_Index.js",
+      "size_bytes": 3465612,
+      "sha256": "91667b88c9ea55395a420b2e390ebc9091f7a5f9a69d69b5f014e17b574b88ea"
+    },
+    {
+      "filename": "FFCS_Friends_ADVT_Global_Smart_Planner_Validation.txt",
+      "size_bytes": 2347,
+      "sha256": "66342a64d87c0f6401ab8174181e8caf980946d821a5eb46720ee46937bd3404"
+    },
+    {
+      "filename": "FFCS HELPER KASI.html",
+      "size_bytes": 1963427,
+      "sha256": "b55e72aa1aebe0c274e90b5ea1ad6c2f71becb71789d1599145f2d12fbfa6fa3"
+    },
+    {
+      "filename": "COURSE PLANNER MAIN.html",
+      "size_bytes": 189040,
+      "sha256": "437ccbc2bbdcc47b26d6b2ca6b41eb1ca2353df5de72259ef738fad74c96c183"
+    },
+    {
+      "filename": "MTech_CSE_Data_Science_Curriculum_2024-2025_Corrected_MDI3004_Complete.md",
+      "size_bytes": 397154,
+      "sha256": "213a5189d35c6b7c3b3c661b9c7dff33134ee026a61ace9f3ec30498bb934011"
+    },
+    {
+      "filename": "5th sem.json",
+      "size_bytes": 109736,
+      "sha256": "1e63ee3a1b68a78abf4fe2bd02a54dd571018a1a75c9128582b131486ab62c77"
+    },
+    {
+      "filename": "sem 6 also.json",
+      "size_bytes": 112089,
+      "sha256": "a65bb94cf324263cdf5dfcab620b18420a153cfa76a86f0a1ca56ec5a7ca2341"
+    },
+    {
+      "filename": "sem 7.json",
+      "size_bytes": 114010,
+      "sha256": "9b4b627a78c361a6d172b6e72ef22d8e0a3d77e3f13e534745a4e4a1df79969e"
+    },
+    {
+      "filename": "sem8.json",
+      "size_bytes": 115914,
+      "sha256": "11ca7470d009770a47de9537e2bb8a1765e03139bbf6979ff29fc46a87f3e27d"
+    },
+    {
+      "filename": "sem 9 10.json",
+      "size_bytes": 115703,
+      "sha256": "5d33a0c0632b6e9b6164408b94fdebb8bd8f7a982fe7bc7f15bd967c7b522c52"
+    },
+    {
+      "filename": "SHEPHERD_LICENSE_AGPL-3.0.md",
+      "size_bytes": 36948,
+      "sha256": "2bb9764cd950f573f1d003867a95d85d0cf20b214d34a8eee3ff4e858762b942"
+    }
+  ],
+  "disclaimer": "SHA is for provenance only; original uploaded sources not embedded."
+}

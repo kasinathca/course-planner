@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>FFCS Studio</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script type="module" src="/static/js/app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">FFCS Studio</div>
+      <span class="phase">Phase 0 foundation</span>
+    </header>
+    <main>
+      <section class="status-card" aria-labelledby="page-title">
+        <p class="eyebrow">Local and offline-first</p>
+        <h1 id="page-title">FFCS Studio is running</h1>
+        <p class="lede">
+          The local website is ready at this loopback address. No timetable solver,
+          degree planner, or VTOP automation is active in Phase 0.
+        </p>
+        <div class="runtime-status" aria-live="polite">
+          <span id="health-dot" class="status-dot" aria-hidden="true"></span>
+          <span id="health-text">Checking local service…</span>
+        </div>
+        <dl class="metadata">
+          <div><dt>Application</dt><dd>{{ app_version }}</dd></div>
+          <div><dt>VTOP schema</dt><dd>{{ schema_version }}</dd></div>
+          <div><dt>Runtime</dt><dd>Python localhost</dd></div>
+        </dl>
+        <p class="next-step">
+          Validate a sanitized capture with
+          <code>python -m ffcs_studio validate examples/vtop_selected_theory_only.json</code>.
+        </p>
+      </section>
+    </main>
+    <footer>All processing remains on this computer.</footer>
+  </body>
+</html>

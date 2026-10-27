@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ffcs-studio/schemas/vtop-export-1.schema.json",
+  "title": "FFCS Studio capture v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source",
+    "campus",
+    "semester_label",
+    "captured_at",
+    "courses"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "source": {
+      "const": "vtop-tampermonkey"
+    },
+    "campus": {
+      "type": "string",
+      "minLength": 1
+    },
+    "semester_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "courses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/course"
+      }
+    }
+  },
+  "$defs": {
+    "course": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "course_code",
+        "course_title",
+        "allocations"
+      ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "course_code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "course_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allocations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/allocation"
+          }
+        }
+      }
+    },
+    "allocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_row",
+        "slot",
+        "venue",
+        "faculty",
+        "course_type"
+      ],
+      "properties": {
+        "source_row": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "slot": {
+          "type": "string",
+          "minLength": 1
+        },
+        "venue": {
+          "type": "string",
+          "minLength": 1
+        },
+        "faculty": {
+          "type": "string",
+          "minLength": 1
+        },
+        "course_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

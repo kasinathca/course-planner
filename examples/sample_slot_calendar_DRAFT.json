@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "campus": "Vellore",
+  "semester_label": "EXAMPLE_ONLY_NOT_OFFICIAL",
+  "timezone": "Asia/Kolkata",
+  "verification_status": "draft_unverified",
+  "source_reference": "Illustrative tiny synthetic intervals for unit test only; NOT a full VIT slot calendar",
+  "slots": {
+    "A1": [
+      {
+        "day": 0,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "theory"
+      },
+      {
+        "day": 2,
+        "start_minute": 540,
+        "end_minute": 590,
+        "kind": "theory"
+      }
+    ],
+    "L1": [
+      {
+        "day": 0,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "lab"
+      }
+    ],
+    "L2": [
+      {
+        "day": 0,
+        "start_minute": 530,
+        "end_minute": 580,
+        "kind": "lab"
+      }
+    ],
+    "A2": [
+      {
+        "day": 0,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "theory"
+      }
+    ]
+  }
+}

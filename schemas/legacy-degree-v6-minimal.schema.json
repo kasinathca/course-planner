@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legacy degree snapshot v6 minimal typed envelope",
+  "type": "object",
+  "required": [
+    "version",
+    "catalog",
+    "completed",
+    "plan",
+    "settings",
+    "offerings"
+  ],
+  "properties": {
+    "version": {
+      "const": 6
+    },
+    "catalog": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "completed": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "courseId"
+          ],
+          "properties": {
+            "courseId": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "settings": {
+      "type": "object"
+    },
+    "offerings": {
+      "type": "object"
+    },
+    "updatedAt": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

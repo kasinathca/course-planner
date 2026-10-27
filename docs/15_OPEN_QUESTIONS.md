@@ -1,0 +1,21 @@
+# Open decisions and requests for verification
+
+Do not block Phase 0/1 on these; implement safe defaults and `needs_review`. Resolve before marking official timetables and graduation checks as verified.
+
+| ID | Question | Safe initial handling | Priority |
+| --- | --- | --- | --- |
+| Q-01 | Obtain the **official VIT Vellore 2026–27 Winter theory/lab slot chart**, exact times, supplementary/virtual slots, and special slots. | `DRAFT_UNVERIFIED` calendar; no official validation badge. | Critical before solver release |
+| Q-02 | Does VTOP enforce **same faculty** between ETH and ELA, an official shared section pairing, or allow different faculties? | Distinct pairing states; same-name matching only provisional, strict mode flags unknown. | Critical |
+| Q-03 | Does VIT **require** opposite-shift theory/lab, or merely tends to offer it? What exceptions exist? | Preference, not hard constraint until documented. | High |
+| Q-04 | Clarify `ETP` EPJ association, contact hours if any, registration behavior of `NIL` rows, and credits. | Zero *additional scheduled lab* by default; retain project component. | High |
+| Q-05 | Confirm what 225 total and NC=5 represent for 2024–25 Integrated M.Tech curriculum. Does NC count toward graduation totals? | Preserve target as supplied, display accounting ambiguity. | High |
+| Q-06 | Verify 27-credit semester cap: user historical validator models 27, but whether current maximum and exceptional overload are allowed must come from policy. | Editable profile with warning until officially verified. | High |
+| Q-07 | Official prerequisite, slot equivalency, alternatives and course repeat policies (e.g. English alternatives, STS3022). | Import explicit rules only; do not infer missing prerequisites. | High |
+| Q-08 | Should the initial localhost runtime support only Windows 11 or also macOS/Linux? | Windows 11 is priority; standards-based browser/UI code should remain portable. | Medium |
+| Q-09 | Rank priorities: “more required credits” vs “fewer labs” when there is a tie in must-take course coverage; allow saved presets? | Default lexicographic as documented; editable preferences. | Medium |
+| Q-10 | Can same user hold different published VTOP course categories/semester versions at once? | Separate snapshots with explicit active semester. | Medium |
+| Q-11 | Is manual capture (one dropdown selection per subject) sufficient for v1, or should guided sequential navigation be permitted by the portal? | Manual first, with capture on change; no automatic POSTs. | Low |
+| Q-12 | Optional integration: FFCSinator export only or a fully standalone replacement with identical features? | Export/import compatibility only. | Low |
+| Q-13 | Should the app support friend/cohort scenario sharing through files (without online accounts)? | Local scenario export/import later. | Low |
+
+Suggested additional input when ready: one screenshot or official downloadable PDF of the **current semester slot matrix** including real theory and lab times. Also useful: VTOP screenshot of a **single ETL course** showing ETH/ELA rows and any official rules about lab-faculty pairing. The supplied saved HTML already provides useful table structure.

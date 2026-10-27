@@ -1,0 +1,102 @@
+{
+  "source": "user consolidated curriculum catalog, version 6",
+  "sample_only": true,
+  "courses": [
+    {
+      "id": "CSI3002",
+      "code": "CSI3002",
+      "title": "Applied Cryptography and Network Security",
+      "category": "PC",
+      "type": "Embedded Theory and Lab",
+      "credits": 3,
+      "L": 2,
+      "T": 0,
+      "P": 2,
+      "J": 0
+    },
+    {
+      "id": "CSI3003",
+      "code": "CSI3003",
+      "title": "Artificial Intelligence and Expert Systems",
+      "category": "PC",
+      "type": "Theory Only",
+      "credits": 3,
+      "L": 3,
+      "T": 0,
+      "P": 0,
+      "J": 0
+    },
+    {
+      "id": "CSI3006",
+      "code": "CSI3006",
+      "title": "Soft Computing Techniques",
+      "category": "PE",
+      "type": "Embedded Theory and Project",
+      "credits": 4,
+      "L": 3,
+      "T": 0,
+      "P": 0,
+      "J": 4
+    },
+    {
+      "id": "CSI3007",
+      "code": "CSI3007",
+      "title": "Advanced Python Programming",
+      "category": "PE",
+      "type": "Embedded Theory and Lab",
+      "credits": 4,
+      "L": 2,
+      "T": 0,
+      "P": 4,
+      "J": 0
+    },
+    {
+      "id": "CSI4005",
+      "code": "CSI4005",
+      "title": "Augmented Reality and Virtual Reality",
+      "category": "PE",
+      "type": "Embedded Theory and Project",
+      "credits": 4,
+      "L": 3,
+      "T": 0,
+      "P": 0,
+      "J": 4
+    },
+    {
+      "id": "STS3022-ETIQUETTE",
+      "code": "STS3022",
+      "title": "Introduction to Etiquette",
+      "category": "UC",
+      "type": "Soft Skills",
+      "credits": 1,
+      "L": 3,
+      "T": 0,
+      "P": 0,
+      "J": 0
+    },
+    {
+      "id": "STS3022-PROBLEM",
+      "code": "STS3022",
+      "title": "Enhancing Problem Solving Skills",
+      "category": "UC",
+      "type": "Soft Skills",
+      "credits": 1,
+      "L": 3,
+      "T": 0,
+      "P": 0,
+      "J": 0
+    },
+    {
+      "id": "MDI3004",
+      "code": "MDI3004",
+      "title": "Intelligent Database Systems",
+      "category": "SPE",
+      "type": "Embedded Theory and Project",
+      "credits": 4,
+      "L": 3,
+      "T": 0,
+      "P": 0,
+      "J": 4
+    }
+  ]
+}
