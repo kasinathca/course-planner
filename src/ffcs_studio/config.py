@@ -40,6 +40,8 @@ class Settings:
     database_name: str = "ffcs_studio.sqlite3"
     sqlite_busy_timeout_ms: int = 5_000
     preview_ttl_seconds: int = 900
+    solver_max_workers: int = 2
+    solver_cancel_grace_seconds: float = 2.0
 
     def __post_init__(self) -> None:
         if not _is_loopback_host(self.host):
@@ -56,6 +58,10 @@ class Settings:
             raise ConfigurationError("sqlite_busy_timeout_ms must be at least 100")
         if self.preview_ttl_seconds < 30:
             raise ConfigurationError("preview_ttl_seconds must be at least 30")
+        if not 1 <= self.solver_max_workers <= 4:
+            raise ConfigurationError("solver_max_workers must be between 1 and 4")
+        if not 0.1 <= self.solver_cancel_grace_seconds <= 10:
+            raise ConfigurationError("solver_cancel_grace_seconds must be between 0.1 and 10")
 
     @classmethod
     def from_env(
@@ -70,11 +76,15 @@ class Settings:
         env_limit = os.environ.get("FFCS_STUDIO_MAX_REQUEST_BYTES", "1048576")
         env_busy_timeout = os.environ.get("FFCS_STUDIO_SQLITE_BUSY_TIMEOUT_MS", "5000")
         env_preview_ttl = os.environ.get("FFCS_STUDIO_PREVIEW_TTL_SECONDS", "900")
+        env_solver_workers = os.environ.get("FFCS_STUDIO_SOLVER_MAX_WORKERS", "2")
+        env_solver_grace = os.environ.get("FFCS_STUDIO_SOLVER_CANCEL_GRACE_SECONDS", "2")
         try:
             resolved_port = port if port is not None else int(env_port)
             request_limit = int(env_limit)
             busy_timeout = int(env_busy_timeout)
             preview_ttl = int(env_preview_ttl)
+            solver_workers = int(env_solver_workers)
+            solver_grace = float(env_solver_grace)
         except ValueError as exc:
             raise ConfigurationError("numeric environment settings must be integers") from exc
 
@@ -87,6 +97,8 @@ class Settings:
             database_name=os.environ.get("FFCS_STUDIO_DATABASE_NAME", "ffcs_studio.sqlite3"),
             sqlite_busy_timeout_ms=busy_timeout,
             preview_ttl_seconds=preview_ttl,
+            solver_max_workers=solver_workers,
+            solver_cancel_grace_seconds=solver_grace,
         )
 
     @property

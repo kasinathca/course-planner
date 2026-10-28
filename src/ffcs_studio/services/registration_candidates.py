@@ -48,6 +48,12 @@ class RegistrationCandidate:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class CandidatePreview:
+    items: tuple[RegistrationCandidate, ...]
+    truncated: bool
+
+
 def build_candidates(
     allocations: Iterable[Mapping[str, object]],
     curriculum_type: CurriculumType,
@@ -57,6 +63,31 @@ def build_candidates(
 ) -> tuple[RegistrationCandidate, ...]:
     if not 1 <= limit <= 1000:
         raise ValueError("candidate limit must be between 1 and 1000")
+    return _build_candidates(allocations, curriculum_type, pairing_states, limit=limit)
+
+
+def preview_candidates(
+    allocations: Iterable[Mapping[str, object]],
+    curriculum_type: CurriculumType,
+    pairing_states: Mapping[frozenset[int], PairingState],
+    *,
+    limit: int = 200,
+) -> CandidatePreview:
+    """Return a display-only bounded preview with an explicit truncation signal."""
+
+    if not 1 <= limit <= 1000:
+        raise ValueError("candidate limit must be between 1 and 1000")
+    items = _build_candidates(allocations, curriculum_type, pairing_states, limit=limit + 1)
+    return CandidatePreview(items[:limit], len(items) > limit)
+
+
+def _build_candidates(
+    allocations: Iterable[Mapping[str, object]],
+    curriculum_type: CurriculumType,
+    pairing_states: Mapping[frozenset[int], PairingState],
+    *,
+    limit: int,
+) -> tuple[RegistrationCandidate, ...]:
     choices = tuple(
         AllocationChoice(
             allocation_id=int(str(item["allocation_id"])),

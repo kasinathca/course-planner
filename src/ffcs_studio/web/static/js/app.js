@@ -30,10 +30,18 @@ const calendarSelect = document.querySelector("#calendar-select");
 const calendarFeedback = document.querySelector("#calendar-feedback");
 const calendarState = document.querySelector("#calendar-state");
 const slotOutput = document.querySelector("#slot-output");
+const solverSemester = document.querySelector("#solver-semester");
+const solverCalendar = document.querySelector("#solver-calendar");
+const solverCoursesBody = document.querySelector("#solver-courses-body");
+const solverFeedback = document.querySelector("#solver-feedback");
+const solverState = document.querySelector("#solver-state");
+const solverProgress = document.querySelector("#solver-progress");
+const solverResults = document.querySelector("#solver-results");
 
 const importFlow = { validationId: null, previewId: null };
 const explorer = { page: 1, pageSize: 25, total: 0 };
 const calendarFlow = { validationId: null, previewId: null };
+const solverFlow = { calendars: [], jobId: null, pollTimer: null, countTimer: null };
 
 class ApiError extends Error {
   constructor(response, payload) {
@@ -112,6 +120,14 @@ calendarCommit.addEventListener("click", commitCalendar);
 calendarSelect.addEventListener("change", updateCalendarControls);
 document.querySelector("#resolve-slot").addEventListener("click", resolveLeftSlot);
 document.querySelector("#check-conflict").addEventListener("click", checkSlotConflict);
+document.querySelector("#solver-load-courses").addEventListener("click", loadSolverCourses);
+document.querySelector("#solver-validate").addEventListener("click", validateSolverScenario);
+document.querySelector("#solver-start").addEventListener("click", startSolverJob);
+document.querySelector("#solver-cancel").addEventListener("click", cancelSolverJob);
+document.querySelector("#solver-count").addEventListener("click", startExactCount);
+document.querySelector("#solver-cancel-count").addEventListener("click", cancelExactCount);
+solverSemester.addEventListener("change", filterSolverCalendars);
+loadSolverSources();
 
 async function loadCalendars(preferredCalendarId = "") {
   try {
@@ -512,6 +528,438 @@ async function api(path, options = {}) {
   try { payload = await response.json(); } catch (_error) { /* handled below */ }
   if (!response.ok) throw new ApiError(response, payload);
   return payload;
+}
+
+async function loadSolverSources() {
+  try {
+    const [semesters, calendars] = await Promise.all([
+      api("/api/v1/semesters"),
+      api("/api/v1/calendars"),
+    ]);
+    solverFlow.calendars = calendars.items;
+    solverSemester.replaceChildren(option("", semesters.items.length ? "Select a semester" : "No imported semesters"));
+    for (const semester of semesters.items) {
+      solverSemester.append(option(
+        `${semester.campus}\u001f${semester.semester_label}`,
+        `${semester.semester_label} — ${semester.campus} (${semester.offering_count})`,
+      ));
+    }
+    if (semesters.items.length) solverSemester.selectedIndex = 1;
+    filterSolverCalendars();
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+function filterSolverCalendars() {
+  const [campus = "", semester = ""] = solverSemester.value.split("\u001f");
+  if (campus) document.querySelector("#solver-campus").value = campus;
+  const matches = solverFlow.calendars.filter((item) =>
+    item.campus === campus && item.semester_label === semester
+  );
+  solverCalendar.replaceChildren(option("", matches.length ? "Select a matching calendar" : "No exact matching calendar"));
+  for (const item of matches) {
+    const active = item.active ? " · active" : "";
+    solverCalendar.append(option(
+      item.calendar_id,
+      `${item.profile_name} v${item.version} [${item.verification_status}]${active}`,
+    ));
+  }
+  const active = matches.find((item) => item.active);
+  if (active) solverCalendar.value = active.calendar_id;
+}
+
+async function loadSolverCourses() {
+  const [campus, semester] = solverSemester.value.split("\u001f");
+  if (!campus || !semester) {
+    setSolverFeedback("Select an imported campus and semester first.", "error");
+    return;
+  }
+  try {
+    const items = [];
+    let page = 1;
+    let total = 0;
+    do {
+      const params = new URLSearchParams({ campus, semester_label: semester, page, page_size: 100 });
+      const result = await api(`/api/v1/offerings?${params}`);
+      items.push(...result.items);
+      total = result.total;
+      page += 1;
+    } while (items.length < total);
+    renderSolverCourses(items);
+    setSolverFeedback(
+      items.length ? `Loaded ${items.length} active offering(s). Choose required or optional roles.` : "No active offerings exist for this semester.",
+      items.length ? "success" : "warning",
+    );
+    solverState.textContent = items.length ? "Courses loaded" : "No courses";
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+function renderSolverCourses(items) {
+  if (!items.length) {
+    solverCoursesBody.replaceChildren(emptyRow("No active offerings exist for this semester.", 7));
+    return;
+  }
+  solverCoursesBody.replaceChildren(...items.map((item) => {
+    const row = document.createElement("tr");
+    row.dataset.offeringId = String(item.offering_id);
+    const courseCell = document.createElement("td");
+    courseCell.append(textElement("span", item.course_code, "course-code"));
+    courseCell.append(textElement("span", item.course_title, "course-title"));
+    courseCell.append(textElement("span", `${item.category} · ${item.allocation_count} rows`, "source-note"));
+
+    const role = selectControl("solver-role", [
+      ["excluded", "Excluded"], ["required", "Required"], ["optional", "Optional"],
+    ]);
+    const curriculum = selectControl("solver-curriculum", [
+      ["unknown", "Unknown"], ["TH", "TH"], ["ETL", "ETL"], ["ETP", "ETP"],
+      ["LO", "LO"], ["ELJ", "ELJ"], ["PJ", "PJ"], ["SS", "SS"],
+    ]);
+    const credits = document.createElement("input");
+    credits.className = "solver-credits";
+    credits.type = "number";
+    credits.min = "0";
+    credits.step = "0.001";
+    credits.setAttribute("aria-label", `${item.course_code} credits`);
+    const source = selectControl("solver-source", [
+      ["unknown", "Unknown"], ["user_supplied", "User supplied"], ["verified", "Verified source"],
+    ]);
+    const tier = document.createElement("input");
+    tier.className = "solver-tier";
+    tier.type = "number";
+    tier.min = "1";
+    tier.max = "20";
+    tier.value = "1";
+    tier.setAttribute("aria-label", `${item.course_code} priority tier`);
+    const restrictions = document.createElement("div");
+    restrictions.className = "solver-locks";
+    restrictions.append(
+      compactInput("solver-locked", "Locked allocation IDs, comma separated", item.course_code),
+      compactInput("solver-locked-faculty", "Required faculty, comma separated", item.course_code),
+      compactInput("solver-forbidden", "Forbidden allocation IDs, comma separated", item.course_code),
+      compactInput("solver-forbidden-faculty", "Forbidden faculty, comma separated", item.course_code),
+    );
+    row.append(
+      courseCell,
+      wrapControl(role),
+      wrapControl(curriculum),
+      wrapControl(credits),
+      wrapControl(source),
+      wrapControl(tier),
+      wrapControl(restrictions),
+    );
+    return row;
+  }));
+}
+
+function selectControl(className, entries) {
+  const select = document.createElement("select");
+  select.className = className;
+  for (const [value, label] of entries) select.append(option(value, label));
+  return select;
+}
+
+function compactInput(className, placeholder, courseCode) {
+  const input = document.createElement("input");
+  input.className = className;
+  input.placeholder = placeholder;
+  input.setAttribute("aria-label", `${courseCode}: ${placeholder}`);
+  return input;
+}
+
+function wrapControl(control) {
+  const cell = document.createElement("td");
+  cell.append(control);
+  return cell;
+}
+
+function buildSolverPayload() {
+  const [selectedCampus = "", semester = ""] = solverSemester.value.split("\u001f");
+  const campus = document.querySelector("#solver-campus").value.trim() || selectedCampus;
+  if (!campus || !semester || !solverCalendar.value) {
+    throw new Error("Select an exact campus, semester, and calendar before planning.");
+  }
+  const courses = [...solverCoursesBody.querySelectorAll("tr[data-offering-id]")].flatMap((row) => {
+    const role = row.querySelector(".solver-role").value;
+    if (role === "excluded") return [];
+    const credits = row.querySelector(".solver-credits").value.trim();
+    const source = row.querySelector(".solver-source").value;
+    return [{
+      offering_id: Number(row.dataset.offeringId),
+      role,
+      curriculum_type: row.querySelector(".solver-curriculum").value,
+      curriculum_source: source,
+      credits: credits || null,
+      credit_source: credits ? source : "unknown",
+      priority_tier: Number(row.querySelector(".solver-tier").value || 1),
+      locked_allocation_ids: integerList(row.querySelector(".solver-locked").value),
+      locked_faculties: textList(row.querySelector(".solver-locked-faculty").value),
+      forbidden_allocation_ids: integerList(row.querySelector(".solver-forbidden").value),
+      forbidden_faculties: textList(row.querySelector(".solver-forbidden-faculty").value),
+    }];
+  });
+  if (!courses.length) throw new Error("Mark at least one course as required or optional.");
+  const occupied = document.querySelector("#solver-occupied").value.split(/\r?\n/).filter((line) => line.trim()).map((line) => {
+    const [day, start, end, ...label] = line.split(",").map((item) => item.trim());
+    const parsed = { day: Number(day), start_minute: Number(start), end_minute: Number(end), label: label.join(",") || "manual commitment" };
+    if (!Number.isInteger(parsed.day) || !Number.isInteger(parsed.start_minute) || !Number.isInteger(parsed.end_minute)) {
+      throw new Error(`Invalid occupied-period line: ${line}`);
+    }
+    return parsed;
+  });
+  return {
+    campus,
+    semester_label: semester,
+    calendar_id: solverCalendar.value,
+    mode: document.querySelector("#solver-mode").value,
+    courses,
+    occupied_intervals: occupied,
+    credit_constraints: {
+      minimum: optionalValue("#solver-min-credits"),
+      target: optionalValue("#solver-target-credits"),
+      maximum: optionalValue("#solver-max-credits"),
+    },
+    ranking: {
+      preferred_faculties: textList(document.querySelector("#solver-preferred-faculty").value),
+      prefer_morning_theory: document.querySelector("#solver-morning").checked,
+      prefer_evening_theory: document.querySelector("#solver-evening").checked,
+      minimize_labs: document.querySelector("#solver-min-labs").checked,
+      minimize_campus_days: document.querySelector("#solver-min-days").checked,
+    },
+    provisional_policy: {
+      allow_unverified_calendar: document.querySelector("#solver-allow-calendar").checked,
+      allow_user_supplied_metadata: document.querySelector("#solver-allow-metadata").checked,
+      allow_provisional_pairing: document.querySelector("#solver-allow-provisional").checked,
+      allow_same_faculty_pairing: document.querySelector("#solver-same-faculty").checked,
+      allow_unknown_pairing: document.querySelector("#solver-unknown-pairing").checked,
+    },
+    top_k: Number(document.querySelector("#solver-top-k").value || 20),
+    max_search_nodes: Number(document.querySelector("#solver-node-budget").value || 2000000),
+  };
+}
+
+async function validateSolverScenario() {
+  try {
+    const result = await api("/api/v1/solver/scenarios/validate", { method: "POST", json: buildSolverPayload() });
+    renderSolverValidation(result);
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+function renderSolverValidation(result) {
+  if (result.valid) {
+    const assumptions = result.assumptions.length ? ` Exploratory assumptions: ${result.assumptions.join("; ")}` : "";
+    setSolverFeedback(`Scenario ready with ${result.course_count} course(s) and ${result.candidate_count} complete option(s).${assumptions}`, result.assumptions.length ? "warning" : "success");
+    solverState.textContent = result.assumptions.length ? "Exploratory ready" : "Verified ready";
+  } else {
+    setSolverFeedback(`Scenario blocked: ${result.issues.map((item) => item.message).join("; ")}`, "error");
+    solverState.textContent = "Unresolved";
+  }
+}
+
+async function startSolverJob() {
+  try {
+    clearSolverTimers();
+    solverResults.replaceChildren();
+    const result = await api("/api/v1/solver/jobs", { method: "POST", json: buildSolverPayload() });
+    solverFlow.jobId = result.job_id;
+    document.querySelector("#solver-cancel").disabled = false;
+    document.querySelector("#solver-count").disabled = true;
+    solverState.textContent = result.status;
+    setSolverFeedback(`Solver job ${result.job_id.slice(0, 8)} started from immutable snapshot ${result.scenario_fingerprint.slice(0, 12)}.`, "success");
+    pollSolverJob();
+  } catch (error) {
+    const issues = error.payload?.issues?.map((item) => item.message).join("; ");
+    setSolverFeedback(issues ? `Scenario blocked: ${issues}` : error.message, "error");
+  }
+}
+
+async function pollSolverJob() {
+  if (!solverFlow.jobId) return;
+  try {
+    const status = await api(`/api/v1/solver/jobs/${solverFlow.jobId}`);
+    solverState.textContent = status.status.replaceAll("_", " ");
+    solverProgress.hidden = false;
+    solverProgress.textContent = `Nodes ${status.progress.nodes_visited || 0}; pruned ${status.progress.branches_pruned || 0}; feasible found ${status.progress.feasible_solutions_seen || 0}.`;
+    if (["queued", "running", "cancellation_requested"].includes(status.status)) {
+      solverFlow.pollTimer = window.setTimeout(pollSolverJob, 250);
+      return;
+    }
+    document.querySelector("#solver-cancel").disabled = true;
+    document.querySelector("#solver-count").disabled = status.status === "failed";
+    await loadSolverResults();
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+async function loadSolverResults() {
+  const result = await api(`/api/v1/solver/jobs/${solverFlow.jobId}/results?page=1&page_size=50`);
+  renderSolverResults(result);
+  if (result.status === "infeasible") {
+    setSolverFeedback("No complete timetable satisfies every hard constraint. Review required-course conflicts, locks, metadata, and credit bounds.", "warning");
+  } else if (result.status === "resource_limit" || result.status === "cancelled") {
+    setSolverFeedback(`Search ${result.status.replaceAll("_", " ")}; displayed schedules are best found so far, not guaranteed globally optimal.`, "warning");
+  } else if (result.status === "failed") {
+    setSolverFeedback("The local solver worker failed safely. Review the server log; no result was certified.", "error");
+  } else {
+    setSolverFeedback(`Exhaustive search completed; showing ${result.total} bounded ranked result(s). Request exact count separately.`, "success");
+  }
+}
+
+function renderSolverResults(payload) {
+  if (!payload.items.length) {
+    solverResults.replaceChildren(textElement("p", "No timetable results are available.", "source-note"));
+    return;
+  }
+  solverResults.replaceChildren(...payload.items.map((result, index) => {
+    const card = document.createElement("article");
+    card.className = "solver-result";
+    card.append(textElement("h3", `#${index + 1} · ${result.selected_courses.join(", ")}`));
+    card.append(textElement("p", `${result.verification_status} · result ${result.result_id}`, "source-note"));
+    const summary = document.createElement("div");
+    summary.className = "solver-result-summary";
+    const metrics = result.metrics;
+    for (const value of [
+      `${metrics.total_credits ?? "unknown"} credits`,
+      `${metrics.physical_lab_sessions} lab sessions`,
+      `${metrics.lab_minutes} lab minutes`,
+      `${metrics.campus_days} campus days`,
+      `${metrics.interclass_gap_minutes} gap minutes`,
+    ]) summary.append(textElement("span", value));
+    card.append(summary);
+    card.append(textElement(
+      "p",
+      result.course_metadata.map((course) =>
+        `${course.course_code}: ${course.credits ?? "unknown"} credits (${course.credit_source}), ${course.curriculum_type} (${course.curriculum_source})`
+      ).join(" · "),
+      "source-note",
+    ));
+    if (metrics.daily_spans.length) {
+      card.append(textElement(
+        "p",
+        `Daily spans: ${metrics.daily_spans.map((span) => `${span.day_name} ${span.start_time}–${span.end_time}`).join("; ")}`,
+        "source-note",
+      ));
+    }
+    const explanation = document.createElement("ul");
+    for (const line of result.explanation) explanation.append(textElement("li", line));
+    card.append(explanation);
+    if (result.assumptions.length) {
+      card.append(textElement("p", `Assumptions: ${result.assumptions.join("; ")}`, "solver-assumptions"));
+    }
+    const tableWrap = document.createElement("div");
+    tableWrap.className = "table-wrap solver-meetings";
+    const table = document.createElement("table");
+    const head = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    for (const name of ["Course", "Component", "Day", "Time", "Faculty", "Venue"]) headRow.append(textElement("th", name));
+    head.append(headRow);
+    const body = document.createElement("tbody");
+    const rows = result.assignments.flatMap((assignment) => assignment.meetings.map((meeting) => ({ assignment, meeting })));
+    rows.sort((left, right) => left.meeting.day - right.meeting.day || left.meeting.start_minute - right.meeting.start_minute || left.assignment.course_code.localeCompare(right.assignment.course_code));
+    for (const { assignment, meeting } of rows) {
+      const row = document.createElement("tr");
+      row.append(
+        textElement("td", assignment.course_code),
+        textElement("td", meeting.component_type),
+        textElement("td", meeting.day_name),
+        textElement("td", `${meeting.start_time}–${meeting.end_time}`),
+        textElement("td", meeting.faculty),
+        textElement("td", meeting.venue),
+      );
+      body.append(row);
+    }
+    table.append(head, body);
+    tableWrap.append(table);
+    card.append(tableWrap);
+    return card;
+  }));
+}
+
+async function cancelSolverJob() {
+  if (!solverFlow.jobId) return;
+  try {
+    await api(`/api/v1/solver/jobs/${solverFlow.jobId}/cancel`, { method: "POST", json: {} });
+    setSolverFeedback("Cancellation requested. The worker will stop cooperatively, with a forced local fallback if needed.", "warning");
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+async function startExactCount() {
+  if (!solverFlow.jobId) return;
+  try {
+    const result = await api(`/api/v1/solver/jobs/${solverFlow.jobId}/count`, { method: "POST", json: {} });
+    document.querySelector("#solver-count").disabled = true;
+    document.querySelector("#solver-cancel-count").disabled = false;
+    solverProgress.hidden = false;
+    solverProgress.textContent = `Exact count ${result.status}.`;
+    pollExactCount();
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+async function pollExactCount() {
+  if (!solverFlow.jobId) return;
+  try {
+    const result = await api(`/api/v1/solver/jobs/${solverFlow.jobId}/count`);
+    solverProgress.textContent = `Exact count ${result.status}; nodes ${result.progress.nodes_visited || 0}; pruned ${result.progress.branches_pruned || 0}.`;
+    if (["pending", "running"].includes(result.status)) {
+      solverFlow.countTimer = window.setTimeout(pollExactCount, 250);
+      return;
+    }
+    document.querySelector("#solver-cancel-count").disabled = true;
+    if (result.status === "exact") {
+      setSolverFeedback(`Exact feasible timetable count: ${result.result.exact_count}.`, "success");
+    } else {
+      setSolverFeedback(`Exact count ended as ${result.status}; no exact number is displayed.`, "warning");
+    }
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+async function cancelExactCount() {
+  if (!solverFlow.jobId) return;
+  try {
+    await api(`/api/v1/solver/jobs/${solverFlow.jobId}/count/cancel`, { method: "POST", json: {} });
+    setSolverFeedback("Exact-count cancellation requested.", "warning");
+  } catch (error) {
+    setSolverFeedback(error.message, "error");
+  }
+}
+
+function setSolverFeedback(text, style) {
+  solverFeedback.textContent = text;
+  solverFeedback.className = `feedback${style ? ` ${style}` : ""}`;
+}
+
+function clearSolverTimers() {
+  if (solverFlow.pollTimer) window.clearTimeout(solverFlow.pollTimer);
+  if (solverFlow.countTimer) window.clearTimeout(solverFlow.countTimer);
+  solverFlow.pollTimer = null;
+  solverFlow.countTimer = null;
+}
+
+function integerList(value) {
+  if (!value.trim()) return [];
+  const values = value.split(",").map((item) => Number(item.trim()));
+  if (values.some((item) => !Number.isInteger(item) || item <= 0)) throw new Error("Allocation ID lists must contain positive integers.");
+  return values;
+}
+
+function textList(value) {
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function optionalValue(selector) {
+  const value = document.querySelector(selector).value.trim();
+  return value || null;
 }
 
 function isCsv(file) {

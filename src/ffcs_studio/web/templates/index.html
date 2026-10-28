@@ -7,7 +7,7 @@
     <meta name="ffcs-csrf" content="{{ csrf_token }}">
     <title>FFCS Studio</title>
     <link rel="stylesheet" href="/static/css/app.css">
-    <script type="module" src="/static/js/app.js?v=0.3.1"></script>
+    <script type="module" src="/static/js/app.js?v=0.4.0"></script>
   </head>
   <body>
     <header class="site-header">
@@ -15,9 +15,10 @@
       <nav aria-label="Primary">
         <a href="#overview">Overview</a>
         <a href="#courses-data">Courses &amp; Data</a>
+        <a href="#timetable-planner">Timetable Planner</a>
         <a href="#slot-inspector">Slot Inspector</a>
       </nav>
-      <span class="phase">Phase 2 calendar engine</span>
+      <span class="phase">Phase 3 exact solver</span>
     </header>
     <main class="workspace">
       <section id="overview" class="status-card" aria-labelledby="page-title">
@@ -161,6 +162,93 @@
           </article>
         </section>
       </div>
+
+      <section id="timetable-planner" class="panel planner" aria-labelledby="planner-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Timetable Planner</p>
+            <h2 id="planner-title">Generate exact clash-free assignments</h2>
+            <p>Searches run in bounded local worker processes. Exact counting is requested separately.</p>
+          </div>
+          <span id="solver-state" class="state-pill">Not configured</span>
+        </div>
+
+        <div class="planner-context">
+          <label>Campus <input id="solver-campus" value="Vellore" maxlength="100"></label>
+          <label>Semester <select id="solver-semester"><option value="">Select a semester</option></select></label>
+          <label>Calendar <select id="solver-calendar"><option value="">Select a matching calendar</option></select></label>
+          <label>Evaluation policy
+            <select id="solver-mode">
+              <option value="exploratory">Exploratory planning</option>
+              <option value="strict_verified">Strict verified</option>
+            </select>
+          </label>
+          <button id="solver-load-courses" type="button" class="secondary">Load semester courses</button>
+        </div>
+
+        <div class="table-wrap solver-course-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Course</th><th>Role</th><th>Curriculum</th><th>Credits</th>
+                <th>Source</th><th>Tier</th><th>Locks / exclusions</th>
+              </tr>
+            </thead>
+            <tbody id="solver-courses-body">
+              <tr><td colspan="7" class="empty-cell">Choose a semester and load courses.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="planner-settings">
+          <fieldset>
+            <legend>Credit and result limits</legend>
+            <div class="compact-grid">
+              <label>Minimum credits <input id="solver-min-credits" type="number" min="0" step="0.001"></label>
+              <label>Target credits <input id="solver-target-credits" type="number" min="0" step="0.001"></label>
+              <label>Maximum credits <input id="solver-max-credits" type="number" min="0" step="0.001"></label>
+              <label>Top results <input id="solver-top-k" type="number" min="1" max="100" value="20"></label>
+              <label>Search node budget <input id="solver-node-budget" type="number" min="1000" max="100000000" value="2000000"></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Preferences and occupied time</legend>
+            <label>Preferred faculty (comma separated) <input id="solver-preferred-faculty"></label>
+            <label>Occupied periods (one per line: day,start,end,label)
+              <textarea id="solver-occupied" rows="3" placeholder="0,480,530,existing class"></textarea>
+            </label>
+            <div class="check-grid">
+              <label><input id="solver-morning" type="checkbox"> Prefer morning theory</label>
+              <label><input id="solver-evening" type="checkbox"> Prefer evening theory</label>
+              <label><input id="solver-min-labs" type="checkbox" checked> Minimize labs</label>
+              <label><input id="solver-min-days" type="checkbox" checked> Minimize campus days</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Explicit exploratory assumptions</legend>
+            <div class="check-grid">
+              <label><input id="solver-allow-calendar" type="checkbox"> Use non-official selected calendar</label>
+              <label><input id="solver-allow-metadata" type="checkbox"> Use reviewed user-supplied types/credits</label>
+              <label><input id="solver-allow-provisional" type="checkbox"> Allow saved provisional pairings</label>
+              <label><input id="solver-same-faculty" type="checkbox"> Assume same-faculty component pairing</label>
+              <label><input id="solver-unknown-pairing" type="checkbox"> Allow explicitly speculative pairing</label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="button-row">
+          <button id="solver-validate" type="button">Validate scenario</button>
+          <button id="solver-start" type="button" class="confirm">Generate timetables</button>
+          <button id="solver-cancel" type="button" class="ghost" disabled>Cancel search</button>
+          <button id="solver-count" type="button" class="secondary" disabled>Request exact count</button>
+          <button id="solver-cancel-count" type="button" class="ghost" disabled>Cancel count</button>
+        </div>
+        <div id="solver-feedback" class="feedback" role="status" aria-live="polite">
+          Select a campus, semester, calendar, and course roles. Hard restrictions are never relaxed.
+        </div>
+        <div id="solver-progress" class="solver-progress" hidden></div>
+        <div id="solver-results" class="solver-results" aria-live="polite"></div>
+      </section>
 
       <section id="slot-inspector" class="panel inspector" aria-labelledby="slot-title">
         <div class="panel-heading">

@@ -34,10 +34,18 @@ from ffcs_studio.services.import_service import (
     UnsafeFilename,
     UnsupportedUpload,
 )
+from ffcs_studio.services.solver_jobs import (
+    SolverJobConflict,
+    SolverJobError,
+    SolverJobManager,
+    SolverJobNotFound,
+)
+from ffcs_studio.services.solver_service import SolverService
 from ffcs_studio.version import VTOP_SCHEMA_VERSION, __version__
 from ffcs_studio.web.routes.calendars import router as calendars_router
 from ffcs_studio.web.routes.courses import router as courses_router
 from ffcs_studio.web.routes.imports import router as imports_router
+from ffcs_studio.web.routes.solver import router as solver_router
 from ffcs_studio.web.security import LocalSecurityMiddleware
 
 WEB_ROOT = Path(__file__).resolve().parent
@@ -90,6 +98,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.calendar_service = calendar_service
     app.state.import_service = import_service
     app.state.catalog_service = CatalogService(repository)
+    app.state.solver_service = SolverService(repository, calendar_repository)
+    app.state.solver_jobs = SolverJobManager(
+        max_workers=runtime.solver_max_workers,
+        cancel_grace_seconds=runtime.solver_cancel_grace_seconds,
+    )
     app.state.csrf_token = csrf_token
     app.state.database_schema_version = database_schema_version
     app.add_middleware(LocalSecurityMiddleware, settings=runtime, csrf_token=csrf_token)
@@ -97,6 +110,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(imports_router)
     app.include_router(courses_router)
     app.include_router(calendars_router)
+    app.include_router(solver_router)
+    app.add_event_handler("shutdown", app.state.solver_jobs.shutdown)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
@@ -137,6 +152,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         elif isinstance(exc, InvalidCalendar):
             status_code = 422
         else:
+            status_code = 400
+        return JSONResponse(
+            status_code=status_code,
+            content={"error": {"code": exc.code, "message": str(exc)}},
+        )
+
+    @app.exception_handler(SolverJobError)
+    async def solver_job_error(_request: Request, exc: SolverJobError) -> JSONResponse:
+        status_code = 404 if isinstance(exc, SolverJobNotFound) else 409
+        if not isinstance(exc, (SolverJobNotFound, SolverJobConflict)):
             status_code = 400
         return JSONResponse(
             status_code=status_code,

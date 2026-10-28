@@ -13,7 +13,7 @@ from ffcs_studio.domain.conflicts import check_conflicts
 from ffcs_studio.persistence.calendar_repository import CalendarRepository
 from ffcs_studio.persistence.repositories import Repository
 from ffcs_studio.services.calendar_service import CalendarService
-from ffcs_studio.services.registration_candidates import build_candidates
+from ffcs_studio.services.registration_candidates import preview_candidates
 from ffcs_studio.services.slot_resolution import resolve_slot_expression
 
 router = APIRouter(prefix="/api/v1", tags=["phase-2"])
@@ -176,7 +176,7 @@ async def registration_options(
     allocations = repository.offering_allocations(offering_id)
     if detail is None or allocations is None:
         return _offering_not_found()
-    candidates = build_candidates(
+    preview = preview_candidates(
         allocations,
         curriculum_type,
         calendars_repository.pairing_states(int(str(detail["revision_id"]))),
@@ -187,8 +187,9 @@ async def registration_options(
         "offering_id": offering_id,
         "revision_id": detail["revision_id"],
         "curriculum_type": curriculum_type.value,
-        "items": [candidate.to_dict() for candidate in candidates],
+        "items": [candidate.to_dict() for candidate in preview.items],
         "bounded_at": limit,
+        "truncated": preview.truncated,
     }
 
 

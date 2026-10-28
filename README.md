@@ -1,8 +1,8 @@
 # FFCS Studio
 
-FFCS Studio 0.3.1 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates.
+FFCS Studio 0.4.0 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates. Phase 3 adds exact multi-course timetable generation, deterministic ranking, separately requested exact counts, and cancellable bounded worker processes.
 
-It never infers official slot times or faculty pairings. Calendar times resolve only from a selected local calendar version; unknown slots fail closed. Multi-component registration candidates require revision-scoped pairing evidence. The repository does not contain an authentic Winter 2026–27 VIT timetable, so the bundled calendar is conspicuously synthetic and draft-only. Phase 2 does not generate full timetables. The stack is Python 3.12+, FastAPI/Uvicorn, SQLite, and local HTML/CSS/vanilla JavaScript. There is no Node.js, npm, React, Electron, PySide6/Qt, CDN, cloud database, external API, or runtime internet requirement.
+It never infers official slot times, faculty pairings, credits, or curriculum types. Calendar times resolve only from a selected local calendar version; unknown slots fail closed. Multi-component registration candidates require revision-scoped pairing evidence. The repository does not contain an authentic Winter 2026–27 VIT timetable, so the bundled Winter calendar is conspicuously synthetic and draft-only. The Fall calendar is a user-supplied transcription, not independently verified official evidence. The stack is Python 3.12+, FastAPI/Uvicorn, SQLite, and local HTML/CSS/vanilla JavaScript. There is no Node.js, npm, React, Electron, PySide6/Qt, CDN, cloud database, external API, or runtime internet requirement.
 
 ## Windows 11 setup
 
@@ -37,7 +37,21 @@ The direct development command is:
 .\.venv\Scripts\python.exe -m ffcs_studio serve --host 127.0.0.1 --port 8765
 ```
 
-FFCS Studio rejects non-loopback bind addresses. Configuration variables are `FFCS_STUDIO_HOST`, `FFCS_STUDIO_PORT`, `FFCS_STUDIO_MAX_REQUEST_BYTES`, `FFCS_STUDIO_DATA_DIR`, `FFCS_STUDIO_DATABASE_NAME`, `FFCS_STUDIO_SQLITE_BUSY_TIMEOUT_MS`, and `FFCS_STUDIO_PREVIEW_TTL_SECONDS`.
+FFCS Studio rejects non-loopback bind addresses. Configuration variables are `FFCS_STUDIO_HOST`, `FFCS_STUDIO_PORT`, `FFCS_STUDIO_MAX_REQUEST_BYTES`, `FFCS_STUDIO_DATA_DIR`, `FFCS_STUDIO_DATABASE_NAME`, `FFCS_STUDIO_SQLITE_BUSY_TIMEOUT_MS`, `FFCS_STUDIO_PREVIEW_TTL_SECONDS`, `FFCS_STUDIO_SOLVER_MAX_WORKERS`, and `FFCS_STUDIO_SOLVER_CANCEL_GRACE_SECONDS`.
+
+## Generate timetables
+
+1. Import reviewed course allocations and a calendar whose campus and semester match exactly.
+2. Open **Timetable Planner**, choose that semester/calendar, and load courses from SQLite.
+3. Mark courses required, optional, or excluded. Supply reviewed curriculum types and credits where needed; select the honest source status.
+4. Add hard allocation/faculty locks or exclusions, occupied periods, and credit bounds. Configure ranking preferences separately.
+5. If using non-official evidence, choose **Exploratory planning** and explicitly enable only the assumptions you accept.
+6. Validate, then generate. Search progress and cancellation remain responsive because enumeration runs in bounded local worker processes.
+7. Review the bounded ranked results. Request the exact feasible count separately; a cancelled or resource-limited count never displays an estimated number.
+
+Required courses and hard restrictions are never relaxed. Unknown physical slots and incomplete required component options block planning. Results retain exact offering revisions/allocation identities and show source status, assumptions, meetings, workload, daily spans, ranking explanation, and a stable ID. Top-K generation is memory-bounded and is not an exact-count substitute.
+
+Solver endpoints live under `/api/v1/solver` for validation, job creation/status/results/cancellation, and separately cancellable counting. Jobs are local in-memory snapshots and are invalidated by server restart. `FFCS_STUDIO_SOLVER_MAX_WORKERS` defaults to 2 (allowed 1–4); the node budget is configured per scenario.
 
 ## Import and browse course data
 
@@ -105,4 +119,4 @@ Schema errors include JSON Pointer locations and produce exit code `1`. Invalid 
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md`, `docs/20_PHASE_2_ENGINEERING_REPORT.md`, and `docs/21_FALL_2026_WEEKDAY_CALENDAR_INTEGRATION.md`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.
+Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md`, `docs/20_PHASE_2_ENGINEERING_REPORT.md`, `docs/21_FALL_2026_WEEKDAY_CALENDAR_INTEGRATION.md`, and `docs/22_PHASE_3_SOLVER_ENGINEERING_REPORT.md`. The public benchmark is `tools/benchmark_phase3_solver.py`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.

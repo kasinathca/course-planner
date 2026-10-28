@@ -28,6 +28,8 @@
 - Deterministic priority ranking, explanations, `cancel` and progress jobs exposed through localhost.
 - **Deliverable**: reference equivalence, correctly validated results, performance and memory/cancellation tests.
 
+Phase 3 is a historical completed gate as of version 0.4.0. The implementation and measured verification evidence are recorded in `docs/22_PHASE_3_SOLVER_ENGINEERING_REPORT.md`. Do not begin Phase 4 without an explicit user request.
+
 ## Phase 4 — responsive browser UI
 
 - Fully implement five-destination interface, timetable workspace, priority editor, saved scenario controls and accessible interaction styling using only local HTML/CSS/vanilla JS.
@@ -53,4 +55,4 @@
 - Keep `domain` and `solver` independent from HTTP routes. Preserve all source rows and semester context.
 - Do not push commits to GitHub without express user approval.
 
-Phase 0 and Phase 1 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.
+Phases 0 through 3 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.

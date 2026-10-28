@@ -30,7 +30,7 @@ def test_health_endpoint_is_ready_and_private() -> None:
     assert response.json() == {
         "status": "ready",
         "application": "ffcs-studio",
-        "version": "0.3.1",
+        "version": "0.4.0",
         "schema_version": "1.0.0",
     }
     assert response.headers["cache-control"] == "no-store"
@@ -41,10 +41,19 @@ def test_landing_page_and_local_static_assets() -> None:
     response = request("GET", "/")
     assert response.status_code == 200
     assert "FFCS Studio is running" in response.text
+    assert "Timetable Planner" in response.text
+    assert "Phase 3 exact solver" in response.text
     assert "https://" not in response.text
     assert "http://" not in response.text
     assert request("GET", "/static/css/app.css").status_code == 200
     assert request("GET", "/static/js/app.js").status_code == 200
+
+
+def test_solver_routes_are_in_the_local_openapi_contract() -> None:
+    paths = request("GET", "/api/openapi.json").json()["paths"]
+    assert "/api/v1/solver/scenarios/validate" in paths
+    assert "/api/v1/solver/jobs" in paths
+    assert "/api/v1/solver/jobs/{job_id}/count" in paths
 
 
 def test_openapi_contract_is_local_without_cdn_documentation() -> None:
