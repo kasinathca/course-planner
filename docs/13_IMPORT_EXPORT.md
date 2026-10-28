@@ -39,3 +39,11 @@ The private historical files named in `reference/source_manifest.json` were not 
 ## Compatibility direction
 
 For each format implement reader and writer separately with golden fixtures and precise warnings of fields dropped; full fidelity should be guaranteed only for canonical JSON. `data.zip` is a legacy schema **sample**, not official current data.
+
+## Phase 6 implemented contracts
+
+- Canonical semester JSON is generated from active SQLite offering revisions and conforms to VTOP schema `1.0.0`; it is the only full-fidelity course exchange.
+- CSV round-trips with a metadata sidecar, including zero-allocation course metadata. CSV and XLSX neutralize spreadsheet formula prefixes without altering canonical JSON.
+- XLSX contains category sheets plus `ALL_ROWS`, frozen headers and filters. It is an inspection/export format, not a canonical importer.
+- FFCSinator ZIP emits documented category `.ts` files plus `ffcs-studio-sidecar.json`. The reverse adapter accepts only one bounded object literal containing strings, arrays and objects; it never invokes Node, `eval`, imports, functions, templates, environment access, or expressions. It records `legacy-ffcsinator` provenance and enters the ordinary validate → preview → commit pipeline.
+- Scenario export envelopes import only through strict validation. Original IDs are audit metadata; commit always creates a new scenario and never overwrites an existing identity.

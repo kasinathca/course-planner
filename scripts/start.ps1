@@ -33,7 +33,7 @@ if ($LASTEXITCODE -ne 0) {
     throw 'The project virtual environment must use Python 3.12 or newer.'
 }
 
-& $Python -c "import fastapi, uvicorn, jinja2, jsonschema"
+& $Python -c "import fastapi, uvicorn, jinja2, jsonschema, openpyxl"
 if ($LASTEXITCODE -ne 0) {
     throw "Required packages are missing. Run: .\.venv\Scripts\python.exe -m pip install -e '.[dev]'"
 }

@@ -8,7 +8,7 @@ import json
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Query, Request, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ffcs_studio.persistence.scenario_repository import ScenarioRepository
 from ffcs_studio.services.scenario_service import ScenarioSourceService
@@ -30,6 +30,8 @@ ScenarioName = Annotated[str, Field(min_length=1, max_length=120)]
 
 
 class SavedScenarioDocument(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     schema_version: str = Field(default="1.0", pattern=r"^1\.0$")
     campus: str = Field(default="", max_length=100)
     semester_label: str = Field(default="", max_length=200)

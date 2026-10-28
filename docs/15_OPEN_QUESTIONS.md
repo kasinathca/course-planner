@@ -32,3 +32,10 @@ Suggested additional input when ready: one screenshot or official downloadable P
 - Q-06 remains open. Semester warning thresholds are configurable planning warnings, not an invented hard 27-credit policy.
 - Q-07 remains open. The prerequisite and relationship engines accept explicit evidence and prevent requirement double-counting, but no missing English/ENG1902–ENG1903/GER1001 institutional rule was fabricated. STS3022 source identities remain distinct in synthetic regression coverage.
 - The consolidated curriculum and five private legacy snapshots were not present in the permitted local references. Their actual 101-course catalogue and 35 completions remain pending reviewed local import.
+
+## Phase 6 status — 2026-10-28
+
+- Q-11 is implemented with the conservative manual-selection-first collector. Its dynamic sanitized harness passed, but the authenticated current VTOP allocation page and exact live allocation route were not available; real-page acceptance remains pending user-supervised verification.
+- Q-12 is resolved as explicit import/export compatibility only. Legacy TypeScript semantics are labeled lossy, parsed without code execution and stored with `legacy-ffcsinator` provenance.
+- Q-13 is implemented through strict local scenario file export/import. Imported scenarios are always independent copies and are rechecked against current local source revisions.
+- Public binary distribution remains undecided pending a project-wide licence decision and runtime-bundling review. Version 0.7.0 is a verified source installation and wheel, not a signed installer.

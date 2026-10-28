@@ -36,3 +36,11 @@ Never include hidden fields, auth cookie, CSRF token, student registration numbe
 ## Offline fallback
 
 The localhost website accepts legacy workbook or a hand-entered allocation table; AI/PDF extraction only used when deterministic import fails and reviewed by user.
+
+# Phase 6 collector implementation
+
+The auditable standalone userscript is `integrations/vtop/ffcs-studio-vtop-collector.user.js`. It is manual-selection-first, scoped to `https://vtop.vit.ac.in/vtop/*`, uses no network permissions, and exports only the version-1 allowlisted fields. It reads live selected option values/text rather than serialized `selected` attributes and searches visible fragments without assuming duplicated IDs are unique.
+
+The state flow is `no selection → selection changed → waiting/updating → stable → ready`, followed by `captured` or `review required`. Selection changes invalidate the prior baseline. A targeted observer follows the relevant fragment parent through replacement, debounces mutations, waits for stability, rechecks selection identity before and after parsing, and requires manual association confirmation when the page does not prove the selected course owns the visible table. Empty tables require explicit zero-row acknowledgement; unexpected columns block version-1 capture.
+
+Session storage is bounded to 500 courses, 10,000 rows, 2 MiB and three prior recaptures per course. Active identity is campus + semester + category + course code. Recapture replaces only after confirmation and never appends old rows. The sanitized dynamic harness under `integrations/vtop/tests/` is the accepted non-authenticated test fixture; current authenticated VTOP page verification remains pending.

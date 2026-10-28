@@ -15,6 +15,7 @@ export function initScenarios() {
     refreshScenarios();
     refreshOverview();
   });
+  document.addEventListener("ffcs-scenario-imported", refreshScenarios);
   refreshScenarios();
 }
 

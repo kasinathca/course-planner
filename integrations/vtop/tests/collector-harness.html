@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-ffcs-collector-fixture="true">
+<head><meta charset="utf-8"><title>FFCS Studio collector fixture</title></head>
+<body>
+  <main>
+    <label>Category <select id="curriculumCategory"><option value="">-- Choose --</option><option value="PC">PC</option><option value="PE">PE</option></select></label>
+    <label>Course <select id="courseId"><option value="">-- Choose --</option><option value="SYN1001">SYN1001 - Synthetic Theory</option><option value="SYN2001">SYN2001 - Synthetic ETH ELA</option></select></label>
+    <div id="courseListFragement"><div id="courseDetailFragement"><p>No course selected.</p></div></div>
+    <section id="irrelevant"><input name="registrationNumber" value="PRIVATE-PII-MUST-NOT-LEAK"><input type="hidden" name="_csrf" value="PRIVATE-CSRF-MUST-NOT-LEAK"></section>
+    <pre id="results" aria-live="polite"></pre>
+  </main>
+  <script>
+    const fixtures = {
+      SYN1001: [["A1+TA1+TAA1", "NIL", "SYNTHETIC FACULTY", "TH"]],
+      SYN2001: [["B1+TB1", "AB-101", "FACULTY A", "ETH"], ["L1+L2+L15+L16", "LAB-1", "FACULTY A", "ELA"], ["L1+L2+L15+L16", "LAB-1", "FACULTY A", "ELA"]],
+    };
+    const course = document.getElementById("courseId");
+    course.addEventListener("change", () => {
+      const parent = document.getElementById("courseListFragement");
+      const stale = document.getElementById("courseDetailFragement");
+      stale.innerHTML = `<table><thead><tr><th>Slot Detail</th><th>Venue</th><th>Faculty</th><th>Course Type</th></tr></thead><tbody><tr><td>STALE1</td><td>STALE</td><td>STALE</td><td>TH</td></tr></tbody></table>`;
+      const selected = course.value;
+      setTimeout(() => {
+        if (course.value !== selected) return;
+        const replacement = document.createElement("div"); replacement.id = "courseDetailFragement";
+        replacement.innerHTML = `<div id="courseDetailFragement"><table><thead><tr><th>Slot Detail</th><th>Venue</th><th>Faculty</th><th>Course Type</th></tr></thead><tbody>${(fixtures[selected] || []).map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+        stale.replaceWith(replacement);
+      }, selected === "SYN1001" ? 700 : 250);
+    });
+  </script>
+  <script src="../ffcs-studio-vtop-collector.user.js?v=phase6"></script>
+  <script>
+    window.runCollectorAcceptance = async () => {
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const category = document.getElementById("curriculumCategory");
+      const initial = window.__FFCSCollector.parseVisibleTable();
+      category.value = "PC"; category.dispatchEvent(new Event("change", { bubbles: true }));
+      course.value = "SYN1001"; course.dispatchEvent(new Event("change", { bubbles: true }));
+      await wait(100); course.value = "SYN2001"; course.dispatchEvent(new Event("change", { bubbles: true }));
+      await wait(1500);
+      const parsed = window.__FFCSCollector.parseVisibleTable();
+      const serialized = JSON.stringify(parsed);
+      const wasReady = window.__FFCSCollector.state.phase === "ready_to_capture";
+      const collector = document.getElementById("ffcs-studio-collector-host").shadowRoot;
+      collector.getElementById("campus").value = "Vellore";
+      collector.getElementById("semester").value = "Synthetic Semester";
+      collector.getElementById("confirm").checked = true;
+      collector.getElementById("capture").click();
+      course.value = "SYN1001"; course.dispatchEvent(new Event("change", { bubbles: true }));
+      await wait(1800);
+      collector.getElementById("confirm").checked = true;
+      collector.getElementById("capture").click();
+      const captured = window.__FFCSCollector.activeCourses();
+      const currentTable = window.__FFCSCollector.findTable().table;
+      currentTable.querySelector("tbody td:last-child").textContent = "UNRECOGNIZED";
+      const unknown = window.__FFCSCollector.parseVisibleTable();
+      const header = document.createElement("th"); header.textContent = "Seat Count";
+      currentTable.querySelector("thead tr").append(header);
+      for (const row of currentTable.querySelectorAll("tbody tr")) row.append(document.createElement("td"));
+      const extra = window.__FFCSCollector.parseVisibleTable();
+      const assertions = {
+        missingSelectionRejected: initial.ok === false && initial.phase === "no_course_selected",
+        readyAfterRapidSwitch: wasReady,
+        selectedSecondCourse: parsed.identity?.courseCode === "SYN2001",
+        duplicateRowsPreserved: parsed.rows?.length === 3,
+        fourPeriodLabPreserved: parsed.rows?.[1]?.slot === "L1+L2+L15+L16",
+        noStaleRow: !serialized.includes("STALE1"),
+        noPiiLeak: !serialized.includes("PRIVATE-PII") && !serialized.includes("PRIVATE-CSRF"),
+        clickWorkflowCapturedTwoCourses: captured.length === 2 && captured.reduce((sum, item) => sum + item.allocations.length, 0) === 4,
+        unknownComponentRetainedAndFlagged: unknown.ok && unknown.rows[0].course_type === "UNRECOGNIZED" && unknown.warning.includes("Unknown component"),
+        unexpectedColumnBlocksCapture: extra.ok === false && extra.phase === "review_required",
+      };
+      document.getElementById("results").textContent = JSON.stringify(assertions, null, 2);
+      return assertions;
+    };
+    setTimeout(() => window.runCollectorAcceptance(), 50);
+  </script>
+</body>
+</html>

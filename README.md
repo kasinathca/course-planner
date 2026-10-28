@@ -1,6 +1,6 @@
 # FFCS Studio
 
-FFCS Studio 0.6.0 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates. Phase 3 adds exact multi-course timetable generation, deterministic ranking, separately requested exact counts, and cancellable bounded worker processes. Phase 4 adds the complete responsive five-destination browser workspace, exact-minute timetable grids, revision-safe saved scenarios, immutable saved timetable snapshots, comparison, undo/redo, lock/regenerate, and offline exports. Phase 5 makes Degree Planner operational with versioned programme policies, ten-semester timelines, exact credit accounting, curriculum and historical-snapshot imports, prerequisite/equivalency rules, solver scenario transfer, manual allocation states, and minimum-disruption FFCS recovery.
+FFCS Studio 0.7.0 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phases 1–5 provide reviewed course imports, immutable slot calendars, exact timetable solving, the complete five-destination browser workspace, and integrated degree planning/recovery. Phase 6 adds a manual-selection-first VTOP Tampermonkey collector, canonical JSON/CSV/XLSX and explicitly lossy FFCSinator interoperability, independent scenario sharing, checksummed backup/restore, and a repository-root Windows launcher.
 
 It never infers official slot times, faculty pairings, credits, or curriculum types. Calendar times resolve only from a selected local calendar version; unknown slots fail closed. Multi-component registration candidates require revision-scoped pairing evidence. The repository does not contain an authentic Winter 2026–27 VIT timetable, so the bundled Winter calendar is conspicuously synthetic and draft-only. The Fall calendar is a user-supplied transcription, not independently verified official evidence. The stack is Python 3.12+, FastAPI/Uvicorn, SQLite, and local HTML/CSS/vanilla JavaScript. There is no Node.js, npm, React, Electron, PySide6/Qt, CDN, cloud database, external API, or runtime internet requirement.
 
@@ -18,6 +18,10 @@ py -3.12 -m venv .venv
 Package installation may use the internet once. Normal application startup and rendering are local and offline.
 
 ## Start the local website
+
+On Windows, double-click `Start FFCS Studio.cmd` in the repository root. It resolves the project from its own location, so paths containing spaces are supported. The temporary PowerShell execution-policy override applies only to that launcher process and does not change the user's system policy.
+
+The equivalent PowerShell command is:
 
 ```powershell
 .\scripts\start.ps1
@@ -79,6 +83,22 @@ A selected semester can be previewed and committed as an ordinary revision-safe 
 
 Each file is a partial capture by default. Omitted courses remain active. Changed data for one matching course creates a new immutable course revision; it does not replace the semester. Re-importing canonical-identical data reports that it was already imported and does not duplicate active records.
 
+### Capture displayed VTOP allocations manually
+
+1. Install a userscript manager such as Tampermonkey in the browser you use for VTOP.
+2. Open `integrations/vtop/ffcs-studio-vtop-collector.user.js`, review it, and install it manually. It is scoped to `https://vtop.vit.ac.in/vtop/*`, declares no network connections, and refuses other live hosts.
+3. In VTOP, select the campus, semester, category, and one course yourself. Wait for the visible allocation fragment to settle.
+4. Review the collector panel's selected course and row count. If the page cannot prove the table belongs to the current selection, explicitly confirm the association before capture. Zero-row captures also require acknowledgement.
+5. Capture each reviewed course. Duplicate source rows are intentionally preserved. Export canonical JSON, or CSV plus its metadata sidecar, and import it through **Courses & Data**.
+
+The collector reads only displayed selected labels and allowlisted allocation-table columns. It does not read credentials, cookies, hidden fields, raw page HTML, CSRF values, or student identifiers; it does not automate dropdown traversal, registration, fetch/XHR, or portal requests. The sanitized browser harness covers delayed fragments, duplicate IDs, rapid selection changes, duplicate rows, four-period labs, `NIL`, unknown components, unexpected columns, and unrelated PII-like inputs. The current official VTOP host was reviewed, but an authenticated current allocation page was not available for live end-to-end verification; inspect the preview before every real import.
+
+### Exchange data and scenarios
+
+Under **Courses & Data**, choose an exact campus and semester to export canonical JSON, round-trip CSV with metadata, or a human-readable Excel workbook. Spreadsheet exports neutralize values beginning with `=`, `+`, `-`, or `@`; canonical JSON preserves raw source text. The FFCSinator ZIP contains category TypeScript plus a canonical sidecar and loss diagnostics. Its reverse adapter accepts only a bounded documented data-object subset, never executes TypeScript, records `legacy-ffcsinator` provenance, and requires validate → preview → commit. Exact VTOP component semantics that legacy `L`/`P` keys cannot represent stay marked unknown.
+
+Under **Scenarios**, export scenario JSON or import it as a new independent copy. Imports never overwrite an existing scenario ID, revalidate source references and solver readiness, and require an explicit new-copy choice.
+
 CSV columns are:
 
 ```csv
@@ -91,7 +111,9 @@ The **Course explorer** reads SQLite through the local API. Select a semester, s
 
 The default database is `%LOCALAPPDATA%\FFCSStudio\ffcs_studio.sqlite3`. Set `FFCS_STUDIO_DATA_DIR` to use another local directory, including a path containing spaces. The active database is never created inside the repository unless that variable explicitly points there.
 
-Before a schema migration or a non-duplicate import commit, the application creates a consistent SQLite backup under `<data directory>\backups` and retains the ten newest backups. For an additional manual backup, stop the server first and copy the database and `backups` directory together. Do not commit either to Git.
+Before a schema migration or a non-duplicate import commit, the application creates a consistent SQLite backup under `<data directory>\backups` and retains the ten newest backups. **Scenarios** can create and download a consistent manual backup with SHA-256, size, application version, schema version, and SQLite integrity metadata. Restore requires selection of a valid backup, checksum agreement, and typing `RESTORE`; it stops active workers, creates a pre-restore safety backup, restores through a staged SQLite copy, reruns migrations/integrity checks, verifies critical table counts, and restarts workers. If restore fails, the safety copy is restored. Older database schemas may migrate forward; newer unsupported schemas are rejected.
+
+For portability, keep a backup file together with its `.metadata.json` sidecar. Do not rename either file or commit databases/backups to Git. A manual filesystem copy should still be made only while the server is stopped.
 
 ## Import and inspect a slot calendar
 
@@ -134,4 +156,6 @@ Schema errors include JSON Pointer locations and produce exit code `1`. Invalid 
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md`, `docs/20_PHASE_2_ENGINEERING_REPORT.md`, `docs/21_FALL_2026_WEEKDAY_CALENDAR_INTEGRATION.md`, `docs/22_PHASE_3_SOLVER_ENGINEERING_REPORT.md`, `docs/23_PHASE_4_BROWSER_WORKSPACE_ENGINEERING_REPORT.md`, and `docs/24_PHASE_5_DEGREE_PLANNING_AND_RECOVERY_REPORT.md`. Public benchmarks are `tools/benchmark_phase3_solver.py` and `tools/benchmark_phase5.py`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.
+Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md` through `docs/25_PHASE_6_VTOP_INTEROPERABILITY_AND_RELEASE_REPORT.md`. Public benchmarks are `tools/benchmark_phase3_solver.py`, `tools/benchmark_phase5.py`, and `tools/benchmark_phase6.py`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, generated wheels, `node_modules`, or `.next` output in this repository.
+
+The application and dependency licence set must receive a final distribution review before publishing a public binary. Phase 6 does not claim a signed installer or a cleared standalone executable; the supported release remains the reviewed Python source installation above.

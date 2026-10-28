@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ffcs-studio"
-version = "0.6.0"
+version = "0.7.0"
 description = "Offline-first localhost FFCS planning foundation"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,6 +14,7 @@ dependencies = [
   "fastapi>=0.115,<0.116",
   "jinja2>=3.1,<4",
   "jsonschema[format]>=4.23,<5",
+  "openpyxl>=3.1,<4",
   "uvicorn>=0.30,<0.35",
 ]
 
@@ -24,6 +25,7 @@ dev = [
   "pytest>=8,<10",
   "ruff>=0.8,<1",
   "types-jsonschema>=4.23,<5",
+  "types-openpyxl>=3.1,<4",
 ]
 
 [project.scripts]
@@ -44,6 +46,14 @@ ffcs_studio = [
   "web/static/css/*.css",
   "web/static/js/*.js",
   "web/static/js/modules/*.js",
+]
+
+[tool.setuptools.data-files]
+"share/ffcs-studio/integrations/vtop" = [
+  "integrations/vtop/ffcs-studio-vtop-collector.user.js",
+]
+"share/ffcs-studio/integrations/vtop/tests" = [
+  "integrations/vtop/tests/collector-harness.html",
 ]
 
 [tool.pytest.ini_options]

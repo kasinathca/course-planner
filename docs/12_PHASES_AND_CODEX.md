@@ -50,6 +50,8 @@ Phase 5 is a historical completed gate as of version 0.6.0. The versioned degree
 - Excel/CSV, timetable and FFCSinator adapters, backup/restore, Windows PowerShell startup polish, optional Python runtime packaging only if later wanted.
 - **Deliverable**: secure offline localhost release, documented no-Node installation and complete fixtures/tests.
 
+Phase 6 is a historical completed gate as of version 0.7.0. The manual collector, bounded interoperability adapters, independent scenario import, checksummed restore workflow, Windows launcher, browser evidence, wheel inspection, benchmarks, and known live-source limitations are recorded in `docs/25_PHASE_6_VTOP_INTEROPERABILITY_AND_RELEASE_REPORT.md`. Do not begin another phase without an explicit user request.
+
 ## Codex rules
 
 - User-selected architecture is authoritative: **no native desktop GUI or PySide6**; a small *local* Python HTTP server is required.
@@ -59,4 +61,4 @@ Phase 5 is a historical completed gate as of version 0.6.0. The versioned degree
 - Keep `domain` and `solver` independent from HTTP routes. Preserve all source rows and semester context.
 - Do not push commits to GitHub without express user approval.
 
-Phases 0 through 5 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.
+Phases 0 through 6 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.

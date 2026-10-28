@@ -33,6 +33,7 @@ from ffcs_studio.persistence.scenario_repository import (
     ScenarioRepositoryError,
     ScenarioRevisionConflict,
 )
+from ffcs_studio.services.backup_service import BackupError, BackupService
 from ffcs_studio.services.calendar_service import (
     CalendarService,
     CalendarServiceError,
@@ -53,11 +54,13 @@ from ffcs_studio.services.import_service import (
     UnsafeFilename,
     UnsupportedUpload,
 )
+from ffcs_studio.services.interoperability import InterchangeError, SemesterExportService
 from ffcs_studio.services.recovery_jobs import (
     RecoveryJobError,
     RecoveryJobManager,
     RecoveryJobNotFound,
 )
+from ffcs_studio.services.scenario_import import ScenarioImportError, ScenarioImportService
 from ffcs_studio.services.scenario_service import ScenarioSourceService
 from ffcs_studio.services.solver_jobs import (
     SolverJobConflict,
@@ -71,6 +74,7 @@ from ffcs_studio.web.routes.calendars import router as calendars_router
 from ffcs_studio.web.routes.courses import router as courses_router
 from ffcs_studio.web.routes.degree import router as degree_router
 from ffcs_studio.web.routes.imports import router as imports_router
+from ffcs_studio.web.routes.interoperability import router as interoperability_router
 from ffcs_studio.web.routes.scenarios import router as scenarios_router
 from ffcs_studio.web.routes.solver import router as solver_router
 from ffcs_studio.web.security import LocalSecurityMiddleware
@@ -127,6 +131,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.calendar_repository = calendar_repository
     app.state.calendar_service = calendar_service
     app.state.import_service = import_service
+    app.state.semester_exports = SemesterExportService(database)
+    app.state.scenario_imports = ScenarioImportService()
+    app.state.backup_service = BackupService(database)
     app.state.catalog_service = CatalogService(repository)
     app.state.solver_service = SolverService(repository, calendar_repository)
     app.state.scenario_repository = scenario_repository
@@ -151,8 +158,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(solver_router)
     app.include_router(scenarios_router)
     app.include_router(degree_router)
-    app.add_event_handler("shutdown", app.state.solver_jobs.shutdown)
-    app.add_event_handler("shutdown", app.state.recovery_jobs.shutdown)
+    app.include_router(interoperability_router)
+
+    def shutdown_workers() -> None:
+        app.state.solver_jobs.shutdown()
+        app.state.recovery_jobs.shutdown()
+
+    app.add_event_handler("shutdown", shutdown_workers)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
@@ -250,6 +262,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse(
             status_code=400,
             content={"error": {"code": "invalid_degree_import", "message": str(exc)}},
+        )
+
+    @app.exception_handler(InterchangeError)
+    @app.exception_handler(ScenarioImportError)
+    @app.exception_handler(BackupError)
+    async def phase6_error(_request: Request, exc: Exception) -> JSONResponse:
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error": {
+                    "code": getattr(exc, "code", "interchange_error"),
+                    "message": str(exc),
+                }
+            },
         )
 
     @app.exception_handler(sqlite3.Error)

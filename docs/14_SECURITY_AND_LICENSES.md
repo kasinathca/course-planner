@@ -24,3 +24,11 @@ Bind to `127.0.0.1` by default; no public or LAN binding unless explicitly reque
 ## Software integrity
 
 Use migrations, provenance, cryptographic checksum for imported documents, backup and restore. A bad import must not replace the live planner database without an explicit confirm and rollback path. Don't treat mutable external files as trusted executable code; no `eval`, code injection or loadable Python modules from user data.
+
+## Phase 6 review
+
+The VTOP userscript is scoped to the reviewed official VTOP host path, declares `@connect none`, performs no fetch/XHR or credential access, observes only the relevant dynamic fragment, and caps retained courses, rows, recapture history and serialized size. Captures with stale/unproved identity, zero rows, or unexpected columns stop for review. Sanitized browser fixtures include PII- and CSRF-like irrelevant fields to assert they never enter exports. Authenticated live allocation-page verification remains pending.
+
+Managed backups use SQLite's online backup API, SHA-256 metadata and integrity/schema verification. Restore accepts only files already in the configured backup directory with matching metadata, exact `RESTORE` confirmation, a pre-restore safety backup and rollback recovery. HTTP routes never accept arbitrary filesystem paths.
+
+Phase 6 adds `openpyxl` (MIT) and its `et-xmlfile` dependency (MIT); the development-only `types-openpyxl` package supplies type information. These metadata licences were reviewed locally, but the project-wide public distribution licence and any future binary/runtime bundling still require final legal review. No public signed installer or redistributable standalone binary is claimed.

@@ -163,6 +163,16 @@ class ImportService:
         validation_id, expires_at = self._validated.put(ValidatedUpload(result.prepared))
         return ValidationOutcome(validation_id, expires_at, result)
 
+    def validate_prepared(self, prepared: PreparedImport) -> ValidationOutcome:
+        """Register a trusted in-process adapter result for the normal review pipeline."""
+
+        validation_id, expires_at = self._validated.put(ValidatedUpload(prepared))
+        return ValidationOutcome(
+            validation_id,
+            expires_at,
+            PreparationResult(prepared=prepared, issues=prepared.issues),
+        )
+
     def preview(self, validation_id: str) -> PreviewOutcome:
         validated = self._validated.get(validation_id)
         report = reconcile(validated.prepared, self.repository)

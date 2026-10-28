@@ -6,9 +6,10 @@ import shutil
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager, suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from threading import RLock
 
 from ffcs_studio.persistence.migrations import Migration, packaged_migrations
 
@@ -21,10 +22,11 @@ class MigrationError(DatabaseError):
     """A schema migration could not be applied atomically."""
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class Database:
     path: Path
     busy_timeout_ms: int = 5_000
+    _maintenance_lock: RLock = field(default_factory=RLock, init=False, repr=False)
 
     @property
     def backup_dir(self) -> Path:
@@ -87,16 +89,17 @@ class Database:
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
-        connection = self.connect()
-        try:
-            connection.execute("BEGIN IMMEDIATE")
-            yield connection
-            connection.commit()
-        except BaseException:
-            connection.rollback()
-            raise
-        finally:
-            connection.close()
+        with self._maintenance_lock:
+            connection = self.connect()
+            try:
+                connection.execute("BEGIN IMMEDIATE")
+                yield connection
+                connection.commit()
+            except BaseException:
+                connection.rollback()
+                raise
+            finally:
+                connection.close()
 
     @contextmanager
     def connection(self) -> Iterator[sqlite3.Connection]:
@@ -105,6 +108,13 @@ class Database:
             yield connection
         finally:
             connection.close()
+
+    @contextmanager
+    def maintenance(self) -> Iterator[None]:
+        """Block coordinated writers while a multi-step maintenance operation runs."""
+
+        with self._maintenance_lock:
+            yield
 
     def schema_version(self) -> int:
         with self.connection() as connection:
@@ -125,44 +135,62 @@ class Database:
                 current.close()
 
     def create_backup(self, label: str, *, retain: int = 10) -> Path | None:
-        if not self.path.exists() or self.path.stat().st_size == 0:
-            return None
-        self.backup_dir.mkdir(parents=True, exist_ok=True)
-        safe_label = "".join(
-            character for character in label if character.isalnum() or character in "-_"
-        )
-        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
-        destination = self.backup_dir / f"{timestamp}-{safe_label or 'backup'}.sqlite3"
-        source = self.connect()
-        target = sqlite3.connect(destination)
-        try:
-            source.backup(target)
-        finally:
-            target.close()
-            source.close()
-        backups = sorted(self.backup_dir.glob("*.sqlite3"), reverse=True)
-        for expired in backups[retain:]:
-            expired.unlink(missing_ok=True)
-        return destination
+        with self._maintenance_lock:
+            if not self.path.exists() or self.path.stat().st_size == 0:
+                return None
+            self.backup_dir.mkdir(parents=True, exist_ok=True)
+            safe_label = "".join(
+                character for character in label if character.isalnum() or character in "-_"
+            )
+            timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+            destination = self.backup_dir / f"{timestamp}-{safe_label or 'backup'}.sqlite3"
+            source = self.connect()
+            target = sqlite3.connect(destination)
+            try:
+                source.backup(target)
+                target.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+            finally:
+                target.close()
+                source.close()
+            backups = sorted(self.backup_dir.glob("*.sqlite3"), reverse=True)
+            for expired in backups[retain:]:
+                expired.unlink(missing_ok=True)
+                expired.with_suffix(".metadata.json").unlink(missing_ok=True)
+            return destination
 
     def restore_backup(self, backup: Path) -> None:
-        resolved = backup.resolve()
-        backup_root = self.backup_dir.resolve()
-        if backup_root not in resolved.parents or not resolved.is_file():
-            raise DatabaseError("backup must be a file in the configured backup directory")
-        temporary = self.path.with_suffix(".restore.tmp")
-        temporary.unlink(missing_ok=True)
-        shutil.copy2(resolved, temporary)
-        candidate = Database(temporary, self.busy_timeout_ms)
-        try:
-            candidate.verify_integrity()
-        except BaseException:
+        with self._maintenance_lock:
+            resolved = backup.resolve()
+            backup_root = self.backup_dir.resolve()
+            if backup_root not in resolved.parents or not resolved.is_file():
+                raise DatabaseError("backup must be a file in the configured backup directory")
+            temporary = self.path.with_suffix(".restore.tmp")
+            rollback = self.path.with_suffix(".restore.rollback")
             temporary.unlink(missing_ok=True)
-            raise
-        for suffix in ("-wal", "-shm"):
-            Path(f"{self.path}{suffix}").unlink(missing_ok=True)
-        temporary.replace(self.path)
-        self.verify_integrity()
+            rollback.unlink(missing_ok=True)
+            source = sqlite3.connect(resolved)
+            target = sqlite3.connect(temporary)
+            try:
+                source.backup(target)
+            finally:
+                target.close()
+                source.close()
+            candidate = Database(temporary, self.busy_timeout_ms)
+            try:
+                candidate.verify_integrity()
+                if self.path.exists():
+                    shutil.copy2(self.path, rollback)
+                for suffix in ("-wal", "-shm"):
+                    Path(f"{self.path}{suffix}").unlink(missing_ok=True)
+                temporary.replace(self.path)
+                self.verify_integrity()
+            except BaseException:
+                if rollback.exists():
+                    rollback.replace(self.path)
+                temporary.unlink(missing_ok=True)
+                raise
+            finally:
+                rollback.unlink(missing_ok=True)
 
 
 def _migration_script(migration: Migration) -> str:
