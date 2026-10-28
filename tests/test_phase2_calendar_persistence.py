@@ -46,7 +46,7 @@ def draft_payload() -> dict[str, object]:
 
 def service(tmp_path: Path) -> tuple[CalendarService, CalendarRepository, Database]:
     database = Database(tmp_path / "ffcs.sqlite3")
-    assert database.initialize() == 2
+    assert database.initialize() == 3
     repository = CalendarRepository(database)
     return CalendarService(repository, schema()), repository, database
 

@@ -1,6 +1,6 @@
 # FFCS Studio
 
-FFCS Studio 0.4.0 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates. Phase 3 adds exact multi-course timetable generation, deterministic ranking, separately requested exact counts, and cancellable bounded worker processes.
+FFCS Studio 0.5.0 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates. Phase 3 adds exact multi-course timetable generation, deterministic ranking, separately requested exact counts, and cancellable bounded worker processes. Phase 4 adds the complete responsive five-destination browser workspace, exact-minute timetable grids, revision-safe saved scenarios, immutable saved timetable snapshots, comparison, undo/redo, lock/regenerate, and offline exports.
 
 It never infers official slot times, faculty pairings, credits, or curriculum types. Calendar times resolve only from a selected local calendar version; unknown slots fail closed. Multi-component registration candidates require revision-scoped pairing evidence. The repository does not contain an authentic Winter 2026–27 VIT timetable, so the bundled Winter calendar is conspicuously synthetic and draft-only. The Fall calendar is a user-supplied transcription, not independently verified official evidence. The stack is Python 3.12+, FastAPI/Uvicorn, SQLite, and local HTML/CSS/vanilla JavaScript. There is no Node.js, npm, React, Electron, PySide6/Qt, CDN, cloud database, external API, or runtime internet requirement.
 
@@ -48,10 +48,17 @@ FFCS Studio rejects non-loopback bind addresses. Configuration variables are `FF
 5. If using non-official evidence, choose **Exploratory planning** and explicitly enable only the assumptions you accept.
 6. Validate, then generate. Search progress and cancellation remain responsive because enumeration runs in bounded local worker processes.
 7. Review the bounded ranked results. Request the exact feasible count separately; a cancelled or resource-limited count never displays an estimated number.
+8. Save the scenario to create persistent revision history. Name preferred timetable snapshots so they survive a server restart, can be compared later, and can be exported as JSON or CSV.
 
 Required courses and hard restrictions are never relaxed. Unknown physical slots and incomplete required component options block planning. Results retain exact offering revisions/allocation identities and show source status, assumptions, meetings, workload, daily spans, ranking explanation, and a stable ID. Top-K generation is memory-bounded and is not an exact-count substitute.
 
 Solver endpoints live under `/api/v1/solver` for validation, job creation/status/results/cancellation, and separately cancellable counting. Jobs are local in-memory snapshots and are invalidated by server restart. `FFCS_STUDIO_SOLVER_MAX_WORKERS` defaults to 2 (allowed 1–4); the node budget is configured per scenario.
+
+## Saved scenarios and timetable snapshots
+
+The **Scenarios** destination stores incomplete drafts and solver-ready plans in the local SQLite database. Save operations append revisions and reject stale writers; restore creates a new revision instead of erasing history. Scenarios can be duplicated, archived, restored, or permanently deleted only after explicit confirmation. Opening a saved plan checks its offering revisions, allocation identities, and exact calendar version without silently relinking them.
+
+Completed solver results can be named and saved as immutable historical snapshots. They preserve exact assignments, meetings, evidence labels, assumptions, metrics, explanation, scenario revision, and solver fingerprint. A snapshot remains viewable after restart even when its source data later becomes stale, but it is never relabeled as newly verified. Scenario JSON, timetable JSON, timetable CSV, and the browser print layout work offline. CSV export neutralizes spreadsheet-formula prefixes from untrusted text.
 
 ## Import and browse course data
 
@@ -119,4 +126,4 @@ Schema errors include JSON Pointer locations and produce exit code `1`. Invalid 
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md`, `docs/20_PHASE_2_ENGINEERING_REPORT.md`, `docs/21_FALL_2026_WEEKDAY_CALENDAR_INTEGRATION.md`, and `docs/22_PHASE_3_SOLVER_ENGINEERING_REPORT.md`. The public benchmark is `tools/benchmark_phase3_solver.py`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.
+Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md`, `docs/20_PHASE_2_ENGINEERING_REPORT.md`, `docs/21_FALL_2026_WEEKDAY_CALENDAR_INTEGRATION.md`, `docs/22_PHASE_3_SOLVER_ENGINEERING_REPORT.md`, and `docs/23_PHASE_4_BROWSER_WORKSPACE_ENGINEERING_REPORT.md`. The public benchmark is `tools/benchmark_phase3_solver.py`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.

@@ -35,7 +35,7 @@ def encoded(value: dict[str, object], *, pretty: bool = False) -> bytes:
 @pytest.fixture
 def stack(tmp_path: Path) -> tuple[Database, Repository, ImportService]:
     database = Database(tmp_path / "data with spaces" / "ffcs.sqlite3")
-    assert database.initialize() == 2
+    assert database.initialize() == 3
     repository = Repository(database)
     return database, repository, ImportService(database, repository)
 
@@ -59,14 +59,14 @@ def commit_json(service: ImportService, value: dict[str, object], filename: str 
 def test_database_initializes_repeats_and_persists_after_restart(tmp_path: Path) -> None:
     path = tmp_path / "custom Windows path" / "ffcs.sqlite3"
     database = Database(path)
-    assert database.initialize() == 2
-    assert database.initialize() == 2
+    assert database.initialize() == 3
+    assert database.initialize() == 3
     with database.connection() as connection:
         assert connection.execute("PRAGMA foreign_keys").fetchone()[0] == 1
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == 3
         assert connection.execute("PRAGMA quick_check").fetchone()[0] == "ok"
     restarted = Database(path)
-    assert restarted.initialize() == 2
+    assert restarted.initialize() == 3
     assert Repository(restarted).data_revision() == 0
 
 
@@ -91,7 +91,7 @@ def test_failed_migration_is_recoverable(tmp_path: Path) -> None:
     with pytest.raises(MigrationError):
         database.initialize((Migration(1, "broken", "CREATE TABLE broken(;"),))
     assert database.schema_version() == 0
-    assert database.initialize() == 2
+    assert database.initialize() == 3
     database.verify_integrity()
 
 
@@ -369,7 +369,7 @@ def test_restart_recovers_committed_records(stack) -> None:
     database, _repository, service = stack
     _, outcome = commit_json(service, load_fixture(ETH_ELA))
     restarted_database = Database(database.path)
-    assert restarted_database.initialize() == 2
+    assert restarted_database.initialize() == 3
     restarted = Repository(restarted_database)
     detail = restarted.import_detail(outcome.import_id)
     assert detail is not None

@@ -33,6 +33,7 @@ from ffcs_studio.solver.occupancy import occupancy_mask
 @dataclass(frozen=True, slots=True)
 class RequestedCourse:
     offering_id: int
+    source_revision_id: int | None
     role: CourseRole
     curriculum_type: CurriculumType
     curriculum_source: CreditSource
@@ -236,6 +237,18 @@ class SolverService:
                 continue
             self._validate_metadata(request, requested, issues, assumptions)
             revision_id = int(str(detail["revision_id"]))
+            if (
+                requested.source_revision_id is not None
+                and requested.source_revision_id != revision_id
+            ):
+                issues.append(
+                    ScenarioIssue(
+                        "offering_revision_mismatch",
+                        "The saved offering revision is no longer active; review and relink "
+                        "it explicitly",
+                        requested.offering_id,
+                    )
+                )
             candidate_source = CompleteCandidateSource(
                 CandidateCourseSource(
                     offering_id=requested.offering_id,

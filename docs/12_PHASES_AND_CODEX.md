@@ -35,6 +35,8 @@ Phase 3 is a historical completed gate as of version 0.4.0. The implementation a
 - Fully implement five-destination interface, timetable workspace, priority editor, saved scenario controls and accessible interaction styling using only local HTML/CSS/vanilla JS.
 - **Deliverable**: import → prioritize → generate → compare → save/export, via browser at localhost.
 
+Phase 4 is a historical completed gate as of version 0.5.0. Its responsive workspace, scenario migration, browser evidence, verification results, and known limitations are recorded in `docs/23_PHASE_4_BROWSER_WORKSPACE_ENGINEERING_REPORT.md`. Do not begin Phase 5 without an explicit user request.
+
 ## Phase 5 — degree integration and FFCS recovery
 
 - Semester plan editor, category accounting, alternatives/exclusions, five historical snapshot migrations and manual registered/full-section recovery.
@@ -55,4 +57,4 @@ Phase 3 is a historical completed gate as of version 0.4.0. The implementation a
 - Keep `domain` and `solver` independent from HTTP routes. Preserve all source rows and semester context.
 - Do not push commits to GitHub without express user approval.
 
-Phases 0 through 3 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.
+Phases 0 through 4 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.

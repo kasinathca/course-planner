@@ -31,6 +31,7 @@ CreditValue = Annotated[Decimal, Field(ge=0, max_digits=8, decimal_places=3)]
 
 class CourseScenarioRequest(BaseModel):
     offering_id: int = Field(gt=0)
+    source_revision_id: int | None = Field(default=None, gt=0)
     role: CourseRole
     curriculum_type: CurriculumType
     curriculum_source: CreditSource = CreditSource.UNKNOWN
@@ -185,6 +186,7 @@ def _scenario_input(payload: ScenarioRequest) -> SolverScenarioInput:
         courses=tuple(
             RequestedCourse(
                 offering_id=course.offering_id,
+                source_revision_id=course.source_revision_id,
                 role=course.role,
                 curriculum_type=course.curriculum_type,
                 curriculum_source=course.curriculum_source,

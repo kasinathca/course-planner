@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ffcs-studio"
-version = "0.4.0"
+version = "0.5.0"
 description = "Offline-first localhost FFCS planning foundation"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -43,6 +43,7 @@ ffcs_studio = [
   "web/templates/*.html",
   "web/static/css/*.css",
   "web/static/js/*.js",
+  "web/static/js/modules/*.js",
 ]
 
 [tool.pytest.ini_options]

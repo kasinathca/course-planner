@@ -79,3 +79,7 @@ These paths are proposed stable contracts; document any justified changes. Retur
 - Lazy candidate generation and bitsets for time, deterministic ranking, bounded top-K, cache invalidation and cancellation.
 - Tests include pure-domain, source parsing, API request/response, upload security, static asset/offline rendering, browser navigation, concurrency and performance.
 - Do not build a desktop GUI, use CDN fonts/scripts, or copy legacy `node_modules` and `.next` directories into the repository.
+
+## Implemented Phase 4 browser workspace
+
+Version 0.5.0 implements the five-destination local shell and keeps the solver/domain boundary intact. Browser modules under `web/static/js/` handle navigation, data import/exploration, bounded scenario-document state, solver polling, timetable rendering, and persistent scenario controls. SQLite migration 0003 stores versioned scenario revisions and immutable timetable snapshots; optimistic expected-revision checks prevent silent overwrites. The browser never rebuilds historical results from current allocations. Exact architecture, browser evidence, performance measurements, and limitations are in `23_PHASE_4_BROWSER_WORKSPACE_ENGINEERING_REPORT.md`.

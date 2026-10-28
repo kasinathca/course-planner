@@ -19,6 +19,13 @@ from ffcs_studio.config import Settings
 from ffcs_studio.persistence.calendar_repository import CalendarRepository
 from ffcs_studio.persistence.database import Database, DatabaseError
 from ffcs_studio.persistence.repositories import Repository
+from ffcs_studio.persistence.scenario_repository import (
+    SavedResultNotFound,
+    ScenarioNotFound,
+    ScenarioRepository,
+    ScenarioRepositoryError,
+    ScenarioRevisionConflict,
+)
 from ffcs_studio.services.calendar_service import (
     CalendarService,
     CalendarServiceError,
@@ -34,6 +41,7 @@ from ffcs_studio.services.import_service import (
     UnsafeFilename,
     UnsupportedUpload,
 )
+from ffcs_studio.services.scenario_service import ScenarioSourceService
 from ffcs_studio.services.solver_jobs import (
     SolverJobConflict,
     SolverJobError,
@@ -45,6 +53,7 @@ from ffcs_studio.version import VTOP_SCHEMA_VERSION, __version__
 from ffcs_studio.web.routes.calendars import router as calendars_router
 from ffcs_studio.web.routes.courses import router as courses_router
 from ffcs_studio.web.routes.imports import router as imports_router
+from ffcs_studio.web.routes.scenarios import router as scenarios_router
 from ffcs_studio.web.routes.solver import router as solver_router
 from ffcs_studio.web.security import LocalSecurityMiddleware
 
@@ -71,6 +80,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     database_schema_version = database.initialize()
     repository = Repository(database)
     calendar_repository = CalendarRepository(database)
+    scenario_repository = ScenarioRepository(database)
     schema_text = (
         resources.files("ffcs_studio.resources.schemas")
         .joinpath("slot-calendar.schema.json")
@@ -99,6 +109,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.import_service = import_service
     app.state.catalog_service = CatalogService(repository)
     app.state.solver_service = SolverService(repository, calendar_repository)
+    app.state.scenario_repository = scenario_repository
+    app.state.scenario_source_service = ScenarioSourceService(repository, calendar_repository)
     app.state.solver_jobs = SolverJobManager(
         max_workers=runtime.solver_max_workers,
         cancel_grace_seconds=runtime.solver_cancel_grace_seconds,
@@ -111,6 +123,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(courses_router)
     app.include_router(calendars_router)
     app.include_router(solver_router)
+    app.include_router(scenarios_router)
     app.add_event_handler("shutdown", app.state.solver_jobs.shutdown)
 
     @app.exception_handler(StarletteHTTPException)
@@ -162,6 +175,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def solver_job_error(_request: Request, exc: SolverJobError) -> JSONResponse:
         status_code = 404 if isinstance(exc, SolverJobNotFound) else 409
         if not isinstance(exc, (SolverJobNotFound, SolverJobConflict)):
+            status_code = 400
+        return JSONResponse(
+            status_code=status_code,
+            content={"error": {"code": exc.code, "message": str(exc)}},
+        )
+
+    @app.exception_handler(ScenarioRepositoryError)
+    async def scenario_error(_request: Request, exc: ScenarioRepositoryError) -> JSONResponse:
+        if isinstance(exc, (ScenarioNotFound, SavedResultNotFound)):
+            status_code = 404
+        elif isinstance(exc, ScenarioRevisionConflict):
+            status_code = 409
+        else:
             status_code = 400
         return JSONResponse(
             status_code=status_code,

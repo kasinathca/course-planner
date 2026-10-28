@@ -5,291 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
     <meta name="ffcs-csrf" content="{{ csrf_token }}">
-    <title>FFCS Studio</title>
-    <link rel="stylesheet" href="/static/css/app.css">
-    <script type="module" src="/static/js/app.js?v=0.4.0"></script>
+    <title>Overview · FFCS Studio</title>
+    <link rel="stylesheet" href="/static/css/tokens.css?v=0.5.0">
+    <link rel="stylesheet" href="/static/css/layout.css?v=0.5.0-phase4b">
+    <link rel="stylesheet" href="/static/css/app.css?v=0.5.0">
+    <link rel="stylesheet" href="/static/css/timetable.css?v=0.5.0">
+    <script type="module" src="/static/js/app.js?v=0.5.0-phase4e"></script>
   </head>
   <body>
-    <header class="site-header">
-      <a class="brand" href="#overview">FFCS Studio</a>
-      <nav aria-label="Primary">
-        <a href="#overview">Overview</a>
-        <a href="#courses-data">Courses &amp; Data</a>
-        <a href="#timetable-planner">Timetable Planner</a>
-        <a href="#slot-inspector">Slot Inspector</a>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="app-header">
+      <a class="brand" href="#overview" aria-label="FFCS Studio overview"><span class="brand-mark" aria-hidden="true">FS</span><span>FFCS Studio</span></a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="#overview" data-route="overview">Overview</a><a href="#courses" data-route="courses">Courses &amp; Data</a><a href="#planner" data-route="planner">Timetable Planner</a><a href="#degree" data-route="degree">Degree Planner</a><a href="#scenarios" data-route="scenarios">Scenarios</a>
       </nav>
-      <span class="phase">Phase 3 exact solver</span>
+      <div class="header-context"><span id="header-semester">No semester selected</span><span id="health-text" class="health-state">Checking local service…</span></div>
     </header>
-    <main class="workspace">
-      <section id="overview" class="status-card" aria-labelledby="page-title">
-        <p class="eyebrow">Local and offline-first</p>
-        <h1 id="page-title">FFCS Studio is running</h1>
-        <p class="lede">
-          Import reviewed VTOP allocation files into local SQLite, then browse the exact
-          captured courses, faculty, rooms, slots, and provenance.
-        </p>
-        <div class="runtime-status" aria-live="polite">
-          <span id="health-dot" class="status-dot" aria-hidden="true"></span>
-          <span id="health-text">Checking local service…</span>
-        </div>
-        <dl class="metadata">
-          <div><dt>Application</dt><dd>{{ app_version }}</dd></div>
-          <div><dt>VTOP schema</dt><dd>{{ schema_version }}</dd></div>
-          <div><dt>Database schema</dt><dd>{{ database_schema_version }}</dd></div>
-        </dl>
-      </section>
 
-      <section id="courses-data" class="section-heading" aria-labelledby="courses-title">
-        <p class="eyebrow">Courses &amp; Data</p>
-        <h2 id="courses-title">Import and explore source allocations</h2>
-        <p>Validation and preview never change active records. Saving requires explicit confirmation.</p>
-      </section>
-
-      <div class="two-column">
-        <section class="panel" aria-labelledby="import-title">
-          <div class="panel-heading">
-            <div>
-              <h3 id="import-title">Import courses</h3>
-              <p>VTOP JSON v1 or flattened UTF-8 CSV</p>
-            </div>
-            <span id="import-state" class="state-pill">Empty</span>
-          </div>
-
-          <label class="file-picker" for="import-file">
-            <span>Select JSON or CSV</span>
-            <input id="import-file" type="file" accept=".json,.csv,application/json,text/csv">
-          </label>
-          <p id="selected-file" class="file-detail">No file selected.</p>
-
-          <fieldset id="csv-metadata" class="metadata-fields" hidden>
-            <legend>CSV source metadata</legend>
-            <label>Campus <input id="csv-campus" value="Vellore" maxlength="100" required></label>
-            <label>Semester <input id="csv-semester" maxlength="200" required></label>
-            <label>Capture time <input id="csv-captured-at" type="datetime-local" required></label>
-            <p>This metadata is recorded as user-supplied, not VTOP-observed.</p>
-          </fieldset>
-
-          <div class="button-row">
-            <button id="validate-button" type="button" disabled>Validate file</button>
-            <button id="preview-button" type="button" class="secondary" disabled>Preview changes</button>
-            <button id="commit-button" type="button" class="confirm" disabled>Commit import</button>
-            <button id="cancel-button" type="button" class="ghost" disabled>Cancel</button>
-          </div>
-
-          <div id="import-status" class="feedback" role="status" aria-live="polite">
-            Select a file to begin. Nothing is saved until Commit import is pressed.
-          </div>
-
-          <dl id="import-summary" class="summary-grid" hidden>
-            <div><dt>Courses</dt><dd id="summary-courses">0</dd></div>
-            <div><dt>Rows</dt><dd id="summary-rows">0</dd></div>
-            <div><dt>Warnings</dt><dd id="summary-warnings">0</dd></div>
-          </dl>
-
-          <div id="issues-panel" hidden>
-            <h4>Validation and review notes</h4>
-            <ul id="issues-list" class="issue-list"></ul>
-          </div>
-
-          <div id="preview-panel" hidden>
-            <h4>Proposed partial update</h4>
-            <dl class="summary-grid">
-              <div><dt>New courses</dt><dd id="diff-new">0</dd></div>
-              <div><dt>Updated</dt><dd id="diff-updated">0</dd></div>
-              <div><dt>Unchanged</dt><dd id="diff-unchanged">0</dd></div>
-              <div><dt>Rows added</dt><dd id="diff-added">0</dd></div>
-              <div><dt>Rows removed</dt><dd id="diff-removed">0</dd></div>
-              <div><dt>Rows modified</dt><dd id="diff-modified">0</dd></div>
-            </dl>
-            <div id="change-list" class="change-list"></div>
-          </div>
-        </section>
-
-        <section class="panel explorer" aria-labelledby="explorer-title">
-          <div class="panel-heading">
-            <div>
-              <h3 id="explorer-title">Course explorer</h3>
-              <p>Active source records from SQLite</p>
-            </div>
-            <span id="result-count" class="state-pill">0 courses</span>
-          </div>
-
-          <div class="filters">
-            <label>Semester <select id="semester-filter"><option value="">All semesters</option></select></label>
-            <label>Search <input id="search-filter" type="search" placeholder="Code or title"></label>
-            <label>Category <input id="category-filter" placeholder="PC, PE, UC…" maxlength="50"></label>
-            <label>Component
-              <select id="component-filter">
-                <option value="">All components</option>
-                <option>TH</option><option>ETH</option><option>ELA</option><option>EPJ</option><option>SS</option>
-              </select>
-            </label>
-            <button id="filter-button" type="button" class="secondary">Apply filters</button>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Course</th><th>Category</th><th>Components</th><th>Rows</th><th></th></tr></thead>
-              <tbody id="offerings-body">
-                <tr><td colspan="5" class="empty-cell">No imported courses yet.</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="pagination">
-            <button id="previous-page" type="button" class="ghost" disabled>Previous</button>
-            <span id="page-label">Page 1</span>
-            <button id="next-page" type="button" class="ghost" disabled>Next</button>
-          </div>
-
-          <article id="offering-detail" class="detail-panel" hidden>
-            <div class="panel-heading">
-              <div><p class="eyebrow">Source offering</p><h4 id="detail-title"></h4></div>
-              <button id="close-detail" type="button" class="ghost">Close</button>
-            </div>
-            <p id="detail-meta" class="file-detail"></p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Slot</th><th>Venue</th><th>Faculty</th><th>Component</th></tr></thead>
-                <tbody id="allocations-body"></tbody>
-              </table>
-            </div>
-            <p id="detail-missing" class="source-note"></p>
-            <h4>Component interpretation</h4>
-            <p id="detail-component-status" class="source-note"></p>
-            <ul id="detail-candidates" class="issue-list"></ul>
-            <ul id="detail-warnings" class="issue-list" hidden></ul>
-            <p id="detail-provenance" class="provenance"></p>
-          </article>
-        </section>
-      </div>
-
-      <section id="timetable-planner" class="panel planner" aria-labelledby="planner-title">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Timetable Planner</p>
-            <h2 id="planner-title">Generate exact clash-free assignments</h2>
-            <p>Searches run in bounded local worker processes. Exact counting is requested separately.</p>
-          </div>
-          <span id="solver-state" class="state-pill">Not configured</span>
-        </div>
-
-        <div class="planner-context">
-          <label>Campus <input id="solver-campus" value="Vellore" maxlength="100"></label>
-          <label>Semester <select id="solver-semester"><option value="">Select a semester</option></select></label>
-          <label>Calendar <select id="solver-calendar"><option value="">Select a matching calendar</option></select></label>
-          <label>Evaluation policy
-            <select id="solver-mode">
-              <option value="exploratory">Exploratory planning</option>
-              <option value="strict_verified">Strict verified</option>
-            </select>
-          </label>
-          <button id="solver-load-courses" type="button" class="secondary">Load semester courses</button>
-        </div>
-
-        <div class="table-wrap solver-course-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Course</th><th>Role</th><th>Curriculum</th><th>Credits</th>
-                <th>Source</th><th>Tier</th><th>Locks / exclusions</th>
-              </tr>
-            </thead>
-            <tbody id="solver-courses-body">
-              <tr><td colspan="7" class="empty-cell">Choose a semester and load courses.</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="planner-settings">
-          <fieldset>
-            <legend>Credit and result limits</legend>
-            <div class="compact-grid">
-              <label>Minimum credits <input id="solver-min-credits" type="number" min="0" step="0.001"></label>
-              <label>Target credits <input id="solver-target-credits" type="number" min="0" step="0.001"></label>
-              <label>Maximum credits <input id="solver-max-credits" type="number" min="0" step="0.001"></label>
-              <label>Top results <input id="solver-top-k" type="number" min="1" max="100" value="20"></label>
-              <label>Search node budget <input id="solver-node-budget" type="number" min="1000" max="100000000" value="2000000"></label>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Preferences and occupied time</legend>
-            <label>Preferred faculty (comma separated) <input id="solver-preferred-faculty"></label>
-            <label>Occupied periods (one per line: day,start,end,label)
-              <textarea id="solver-occupied" rows="3" placeholder="0,480,530,existing class"></textarea>
-            </label>
-            <div class="check-grid">
-              <label><input id="solver-morning" type="checkbox"> Prefer morning theory</label>
-              <label><input id="solver-evening" type="checkbox"> Prefer evening theory</label>
-              <label><input id="solver-min-labs" type="checkbox" checked> Minimize labs</label>
-              <label><input id="solver-min-days" type="checkbox" checked> Minimize campus days</label>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Explicit exploratory assumptions</legend>
-            <div class="check-grid">
-              <label><input id="solver-allow-calendar" type="checkbox"> Use non-official selected calendar</label>
-              <label><input id="solver-allow-metadata" type="checkbox"> Use reviewed user-supplied types/credits</label>
-              <label><input id="solver-allow-provisional" type="checkbox"> Allow saved provisional pairings</label>
-              <label><input id="solver-same-faculty" type="checkbox"> Assume same-faculty component pairing</label>
-              <label><input id="solver-unknown-pairing" type="checkbox"> Allow explicitly speculative pairing</label>
-            </div>
-          </fieldset>
-        </div>
-
-        <div class="button-row">
-          <button id="solver-validate" type="button">Validate scenario</button>
-          <button id="solver-start" type="button" class="confirm">Generate timetables</button>
-          <button id="solver-cancel" type="button" class="ghost" disabled>Cancel search</button>
-          <button id="solver-count" type="button" class="secondary" disabled>Request exact count</button>
-          <button id="solver-cancel-count" type="button" class="ghost" disabled>Cancel count</button>
-        </div>
-        <div id="solver-feedback" class="feedback" role="status" aria-live="polite">
-          Select a campus, semester, calendar, and course roles. Hard restrictions are never relaxed.
-        </div>
-        <div id="solver-progress" class="solver-progress" hidden></div>
-        <div id="solver-results" class="solver-results" aria-live="polite"></div>
-      </section>
-
-      <section id="slot-inspector" class="panel inspector" aria-labelledby="slot-title">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Slot &amp; Component Inspector</p>
-            <h2 id="slot-title">Verify calendar-backed slot behavior</h2>
-            <p>Only selected, versioned calendars resolve times. Unknown slots remain unresolved.</p>
-          </div>
-          <span id="calendar-state" class="state-pill">No calendar selected</span>
-        </div>
-        <div class="inspector-grid">
-          <div>
-            <h3>Import a calendar</h3>
-            <label class="file-picker" for="calendar-file">
-              <span>Select calendar JSON</span>
-              <input id="calendar-file" type="file" accept=".json,application/json">
-            </label>
-            <p id="calendar-file-detail" class="file-detail">No file selected.</p>
-            <div class="button-row">
-              <button id="calendar-validate" type="button" disabled>Validate</button>
-              <button id="calendar-preview" type="button" class="secondary" disabled>Preview</button>
-              <button id="calendar-commit" type="button" class="confirm" disabled>Commit &amp; select</button>
-            </div>
-            <div id="calendar-feedback" class="feedback" role="status" aria-live="polite">
-              Importing the bundled example creates draft data only.
-            </div>
-          </div>
-          <div>
-            <h3>Resolve and compare</h3>
-            <label>Calendar <select id="calendar-select"><option value="">No committed calendars</option></select></label>
-            <label>Left expression <input id="left-slot" value="A1" maxlength="500"></label>
-            <label>Right expression <input id="right-slot" value="L1" maxlength="500"></label>
-            <div class="button-row">
-              <button id="resolve-slot" type="button" class="secondary" disabled>Resolve left</button>
-              <button id="check-conflict" type="button" disabled>Check conflict</button>
-            </div>
-            <pre id="slot-output" class="inspection-output">Select a committed calendar to inspect slots.</pre>
-          </div>
+    <main id="main-content" tabindex="-1">
+      <section class="app-view" data-view="overview" aria-labelledby="overview-title">
+        <header class="page-heading"><div><p class="eyebrow">Local planning workspace</p><h1 id="overview-title">Overview</h1></div><span class="version-badge">FFCS Studio {{ app_version }} · database {{ database_schema_version }}</span></header>
+        <div id="overview-notice" class="feedback" role="status" aria-live="polite">Choose a semester or resume a saved scenario to begin.</div>
+        <div class="overview-grid">
+          <article class="surface overview-primary"><p class="kicker">Current workspace</p><h2 id="overview-semester">No semester selected</h2><p id="overview-scenario" class="muted">No saved scenario is open.</p><dl class="fact-list"><div><dt>Active imported courses</dt><dd id="overview-course-count">0</dd></div><div><dt>Calendar</dt><dd id="overview-calendar">Not selected</dd></div><div><dt>Scenario readiness</dt><dd id="overview-readiness">Draft</dd></div><div><dt>Course roles</dt><dd id="overview-roles">0 required · 0 optional</dd></div></dl><div class="button-row"><a class="button" href="#planner">Open planner</a><a class="button secondary" href="#courses">Import or review data</a></div></article>
+          <article class="surface"><p class="kicker">Most recently saved timetable</p><div id="overview-result" class="empty-state compact">No timetable has been saved for the current scenario.</div></article>
+          <article class="surface"><p class="kicker">Next useful action</p><h2 id="overview-next-title">Import course allocations</h2><p id="overview-next-detail" class="muted">Course source rows and a matching calendar are required before exact planning.</p><a id="overview-next-link" class="text-link" href="#courses">Go to Courses &amp; Data</a></article>
         </div>
       </section>
+
+      <section class="app-view" data-view="courses" aria-labelledby="courses-title" hidden>
+        <header class="page-heading"><div><p class="eyebrow">Source evidence</p><h1 id="courses-title">Courses &amp; Data</h1></div><p>Raw imported rows remain distinct from derived registration options.</p></header>
+        <div class="data-layout">
+          <section class="surface" aria-labelledby="import-title">
+            <div class="section-heading"><div><h2 id="import-title">Import courses</h2><p>Validate → preview → commit</p></div><span id="import-state" class="state-pill">Empty</span></div>
+            <label class="file-picker" for="import-file"><span>Select VTOP JSON or flattened CSV</span><input id="import-file" type="file" accept=".json,.csv,application/json,text/csv"></label><p id="selected-file" class="muted">No file selected.</p>
+            <fieldset id="csv-metadata" class="form-grid" hidden><legend>CSV source metadata</legend><label>Campus <input id="csv-campus" value="Vellore" maxlength="100"></label><label>Semester <input id="csv-semester" maxlength="200"></label><label>Capture time <input id="csv-captured-at" type="datetime-local"></label></fieldset>
+            <div class="button-row"><button id="validate-button" disabled>Validate file</button><button id="preview-button" class="secondary" disabled>Preview changes</button><button id="commit-button" class="confirm" disabled>Commit import</button><button id="cancel-button" class="ghost" disabled>Cancel</button></div>
+            <div id="import-status" class="feedback" role="status" aria-live="polite">Nothing is saved until Commit import is pressed.</div>
+            <dl id="import-summary" class="fact-list horizontal" hidden><div><dt>Courses</dt><dd id="summary-courses">0</dd></div><div><dt>Rows</dt><dd id="summary-rows">0</dd></div><div><dt>Warnings</dt><dd id="summary-warnings">0</dd></div></dl>
+            <div id="issues-panel" hidden><h3>Validation and review notes</h3><ul id="issues-list" class="issue-list"></ul></div>
+            <div id="preview-panel" hidden><h3>Proposed partial update</h3><dl class="fact-list horizontal"><div><dt>New</dt><dd id="diff-new">0</dd></div><div><dt>Updated</dt><dd id="diff-updated">0</dd></div><div><dt>Unchanged</dt><dd id="diff-unchanged">0</dd></div><div><dt>Rows added</dt><dd id="diff-added">0</dd></div><div><dt>Removed</dt><dd id="diff-removed">0</dd></div><div><dt>Modified</dt><dd id="diff-modified">0</dd></div></dl><div id="change-list"></div></div>
+          </section>
+          <section class="surface explorer" aria-labelledby="explorer-title">
+            <div class="section-heading"><div><h2 id="explorer-title">Course explorer</h2><p>Active source records in SQLite</p></div><span id="result-count" class="state-pill">0 courses</span></div>
+            <div class="filter-bar"><label>Semester <select id="semester-filter"><option value="">All semesters</option></select></label><label>Search <input id="search-filter" type="search" placeholder="Code or title"></label><label>Category <input id="category-filter" placeholder="PC, PE, UC…"></label><label>Component <select id="component-filter"><option value="">All</option><option>TH</option><option>ETH</option><option>ELA</option><option>EPJ</option><option>SS</option></select></label><button id="filter-button" class="secondary">Apply</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Course</th><th>Category</th><th>Components</th><th>Rows</th><th></th></tr></thead><tbody id="offerings-body"><tr><td colspan="5" class="empty-cell">No imported courses yet.</td></tr></tbody></table></div>
+            <div class="pagination"><button id="previous-page" class="ghost" disabled>Previous</button><span id="page-label">Page 1</span><button id="next-page" class="ghost" disabled>Next</button></div>
+            <article id="offering-detail" class="detail-panel" hidden><div class="section-heading"><div><p class="eyebrow">Source offering</p><h3 id="detail-title"></h3></div><button id="close-detail" class="ghost">Close</button></div><p id="detail-meta" class="muted"></p><div class="table-wrap"><table><thead><tr><th>ID</th><th>Slot</th><th>Venue</th><th>Faculty</th><th>Component</th></tr></thead><tbody id="allocations-body"></tbody></table></div><p id="detail-missing" class="source-note"></p><h4>Derived eligible combinations</h4><p id="detail-component-status" class="source-note"></p><ul id="detail-candidates" class="issue-list"></ul><ul id="detail-warnings" class="issue-list" hidden></ul><p id="detail-provenance" class="provenance"></p><button id="add-course-to-planner" class="confirm">Select in timetable planner</button></article>
+          </section>
+        </div>
+        <details class="surface secondary-tool"><summary>Slot &amp; component inspector</summary><div class="inspector-grid"><div><h3>Import a calendar</h3><label class="file-picker" for="calendar-file"><span>Select calendar JSON</span><input id="calendar-file" type="file" accept=".json,application/json"></label><p id="calendar-file-detail" class="muted">No file selected.</p><div class="button-row"><button id="calendar-validate" disabled>Validate</button><button id="calendar-preview" class="secondary" disabled>Preview</button><button id="calendar-commit" class="confirm" disabled>Commit &amp; select</button></div><div id="calendar-feedback" class="feedback" role="status">A user-supplied calendar remains exploratory until independently verified.</div></div><div><h3>Resolve exact intervals</h3><label>Calendar <select id="calendar-select"><option value="">No committed calendars</option></select></label><label>Left expression <input id="left-slot" value="A1"></label><label>Right expression <input id="right-slot" value="L1"></label><div class="button-row"><button id="resolve-slot" class="secondary" disabled>Resolve left</button><button id="check-conflict" disabled>Check conflict</button></div><pre id="slot-output" class="inspection-output">Select a committed calendar.</pre></div></div></details>
+      </section>
+
+      <section class="app-view planner-view" data-view="planner" aria-labelledby="planner-title" hidden>
+        <header class="planner-header"><div><p class="eyebrow">Timetable workspace</p><h1 id="planner-title">Build a clash-free week</h1><p id="planner-subtitle">Choose a semester, review evidence, then generate exact alternatives.</p></div><div class="scenario-toolbar"><span id="dirty-indicator" class="state-pill">Unsaved draft</span><button id="undo-button" class="ghost" disabled>Undo</button><button id="redo-button" class="ghost" disabled>Redo</button><button id="save-scenario-button" class="confirm">Save scenario</button></div></header>
+        <div class="planner-context surface"><label>Campus <input id="solver-campus" value="Vellore" maxlength="100"></label><label>Semester <select id="solver-semester"><option value="">Select a semester</option></select></label><label>Calendar <select id="solver-calendar"><option value="">Select a matching calendar</option></select></label><label>Evaluation <select id="solver-mode"><option value="exploratory">Exploratory planning</option><option value="strict_verified">Strict verified</option></select></label><button id="solver-load-courses" class="secondary">Load courses</button><span id="solver-state" class="state-pill">Not configured</span></div>
+        <div class="planner-workspace">
+          <aside class="planner-zone course-zone" aria-labelledby="course-zone-title"><div class="zone-heading"><div><h2 id="course-zone-title">Course selection</h2><p>Must take, preferred, or excluded</p></div></div><label class="search-label">Search courses <input id="planner-course-search" type="search" placeholder="Code, title or faculty"></label><div class="button-row compact"><button id="reset-course-roles" class="ghost">Reset roles</button><button id="select-visible-optional" class="ghost">Visible → optional</button></div><div id="planner-course-list" class="course-list"><div class="empty-state">Load a semester to see courses.</div></div><section id="course-editor" class="course-editor" hidden><div class="zone-heading"><div><p class="eyebrow">Course details</p><h3 id="course-editor-title"></h3></div><button id="close-course-editor" class="ghost">Close</button></div><div id="course-editor-content"></div></section></aside>
+          <section class="planner-zone timetable-zone" aria-labelledby="weekly-title"><div class="zone-heading"><div><h2 id="weekly-title">Weekly timetable</h2><p id="selected-result-label">Select a generated or saved result</p></div><div class="button-row compact"><button id="print-timetable" class="ghost" disabled>Print</button><button id="lock-result" class="secondary" disabled>Review locks</button></div></div><div id="timetable-empty" class="empty-state"><strong>No timetable selected.</strong><span>Generated alternatives appear here using exact calendar minutes.</span></div><div id="timetable-grid" class="timetable-grid" hidden aria-label="Weekly timetable visualization"></div><div id="meeting-inspector" class="meeting-inspector" hidden></div><details id="meeting-list-panel" hidden><summary>Accessible meeting list</summary><div class="table-wrap"><table><thead><tr><th>Day</th><th>Time</th><th>Course</th><th>Component</th><th>Faculty</th><th>Venue</th><th>Slot</th></tr></thead><tbody id="meeting-list-body"></tbody></table></div></details><div id="timetable-legend" class="legend" hidden></div></section>
+          <aside class="planner-zone results-zone" aria-labelledby="results-zone-title"><div class="zone-heading"><div><h2 id="results-zone-title">Ranked alternatives</h2><p>Globally ranked only after exhaustive search</p></div></div><div id="solver-feedback" class="feedback" role="status" aria-live="polite">Configure course roles and evidence.</div><div id="solver-progress" class="progress-panel" hidden></div><div class="button-row compact"><button id="solver-validate">Validate</button><button id="solver-start" class="confirm">Generate</button><button id="solver-cancel" class="danger" disabled>Cancel</button></div><div class="button-row compact"><button id="solver-count" class="secondary" disabled>Exact count</button><button id="solver-cancel-count" class="ghost" disabled>Cancel count</button></div><div class="display-sort"><label>Displayed subset <select id="result-local-sort"><option value="rank">Solver rank</option><option value="gaps">Fewer gaps</option><option value="days">Fewer campus days</option><option value="labs">Fewer lab sessions</option></select></label></div><div id="solver-results" class="result-list"></div><div id="result-pagination" class="pagination" hidden><button id="result-previous" class="ghost">Previous</button><span id="result-page-label">Page 1</span><button id="result-next" class="ghost">Next</button></div></aside>
+        </div>
+        <section class="planner-footer surface"><details open><summary>Constraints, ranking and exploratory evidence</summary><div class="settings-grid"><fieldset><legend>Credits and limits</legend><label>Minimum <input id="solver-min-credits" type="number" min="0" step="0.001"></label><label>Target <input id="solver-target-credits" type="number" min="0" step="0.001"></label><label>Maximum <input id="solver-max-credits" type="number" min="0" step="0.001"></label><label>Top results <input id="solver-top-k" type="number" min="1" max="100" value="20"></label><label>Node budget <input id="solver-node-budget" type="number" min="1000" max="100000000" value="2000000"></label></fieldset><fieldset><legend>Preferences</legend><label>Preferred faculty <input id="solver-preferred-faculty" placeholder="Selected from course editor"></label><label>Avoid classes after <input id="solver-avoid-late" type="time"></label><label><input id="solver-morning" type="checkbox"> Prefer morning theory</label><label><input id="solver-evening" type="checkbox"> Prefer evening theory</label><label><input id="solver-min-labs" type="checkbox" checked> Fewer laboratories</label><label><input id="solver-min-days" type="checkbox" checked> Fewer campus days</label></fieldset><fieldset><legend>Occupied periods</legend><label>One per line: day,start,end,label<textarea id="solver-occupied" rows="6" placeholder="0,480,530,existing class"></textarea></label></fieldset><fieldset><legend>Explicit exploratory assumptions</legend><label><input id="solver-allow-calendar" type="checkbox"> Use non-official selected calendar</label><label><input id="solver-allow-metadata" type="checkbox"> Use reviewed user-supplied metadata</label><label><input id="solver-allow-provisional" type="checkbox"> Allow saved provisional pairings</label><label><input id="solver-same-faculty" type="checkbox"> Assume same-faculty component pairing</label><label><input id="solver-unknown-pairing" type="checkbox"> Allow explicitly speculative pairing</label></fieldset></div></details></section>
+        <section id="comparison-panel" class="surface comparison-panel" hidden><div class="section-heading"><div><h2 id="comparison-title">Compare timetables</h2><p>Two or three exact assignment records</p></div><button id="clear-comparison" class="ghost">Clear</button></div><div id="comparison-content"></div></section>
+      </section>
+
+      <section class="app-view" data-view="degree" aria-labelledby="degree-title" hidden><header class="page-heading"><div><p class="eyebrow">Phase 5</p><h1 id="degree-title">Degree Planner</h1></div></header><div class="surface empty-state"><strong>Degree planning is not available yet.</strong><span>Phase 5 will add curriculum-category accounting and semester plans. No progress values are fabricated here.</span><a class="button" href="#planner">Return to timetable planning</a></div></section>
+
+      <section class="app-view" data-view="scenarios" aria-labelledby="scenarios-title" hidden><header class="page-heading"><div><p class="eyebrow">Persistent local work</p><h1 id="scenarios-title">Scenarios</h1></div><button id="new-scenario" class="confirm">New draft</button></header><div class="scenario-layout"><section class="surface"><div class="section-heading"><div><h2>Saved scenarios</h2><p>Revision-safe and stored in local SQLite</p></div><label class="inline-check"><input id="show-archived" type="checkbox"> Show archived</label></div><div id="scenario-list" class="scenario-list"><div class="empty-state">No saved scenarios yet.</div></div></section><section class="surface"><div class="section-heading"><div><h2>Revision history</h2><p id="revision-context">Open a scenario to inspect its history.</p></div></div><div id="revision-list" class="revision-list"></div><div class="section-heading saved-results-heading"><div><h2>Saved timetables</h2><p>Immutable historical snapshots</p></div></div><div id="saved-result-list" class="scenario-list"></div></section></div></section>
     </main>
-    <footer>All processing remains on this computer.</footer>
+
+    <dialog id="scenario-dialog" aria-labelledby="scenario-dialog-title"><form id="scenario-form" method="dialog"><h2 id="scenario-dialog-title">Save scenario</h2><label>Name <input id="scenario-name" maxlength="120" required></label><label>Description <textarea id="scenario-description" maxlength="2000" rows="3"></textarea></label><div id="scenario-dialog-status" class="feedback" role="status"></div><div class="button-row"><button value="cancel" class="ghost">Cancel</button><button id="confirm-scenario-save" value="default" class="confirm">Save</button></div></form></dialog>
+    <dialog id="result-dialog" aria-labelledby="result-dialog-title"><form id="result-form" method="dialog"><h2 id="result-dialog-title">Save timetable snapshot</h2><p>The generated assignment and its source identities will be stored as an immutable local snapshot.</p><label>Name <input id="result-name" maxlength="120" required></label><div id="result-dialog-status" class="feedback" role="status"></div><div class="button-row"><button value="cancel" class="ghost">Cancel</button><button id="confirm-result-save" value="default" class="confirm">Save snapshot</button></div></form></dialog>
+    <dialog id="lock-dialog" aria-labelledby="lock-dialog-title"><form method="dialog"><h2 id="lock-dialog-title">Lock selected allocations</h2><p>Choose the course assignments to transfer into the editable scenario as hard locks.</p><div id="lock-options"></div><div class="button-row"><button value="cancel" class="ghost">Cancel</button><button id="apply-locks" value="default" class="confirm">Apply selected locks</button></div></form></dialog>
+    <footer>All planning data remains on this computer. Strict and exploratory evidence are always distinguished.</footer>
   </body>
 </html>

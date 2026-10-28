@@ -97,6 +97,25 @@ class SolverJobManager:
                 "total": len(results),
             }
 
+    def result_snapshot(self, job_id: str, result_id: str) -> dict[str, Any]:
+        """Return one completed result with its frozen worker scenario for durable saving."""
+        with self._lock:
+            self._refresh_locked()
+            record = self._record(job_id)
+            if record.outcome is None:
+                raise SolverJobConflict("Solver results are not available yet")
+            result = next(
+                (item for item in record.outcome.results if item.result_id == result_id), None
+            )
+            if result is None:
+                raise SolverJobNotFound("The requested solver result was not found in this job")
+            return {
+                "scenario": record.scenario,
+                "result": result,
+                "search_termination": record.outcome.termination.value,
+                "search_exhaustive": record.outcome.exhaustive,
+            }
+
     def cancel(self, job_id: str) -> dict[str, Any]:
         with self._lock:
             self._refresh_locked()

@@ -53,3 +53,7 @@ Timetable: generate → stream/poll progress → cancel → compare two or three
 Recovery: show locked registrations, newly unavailable sections, minimal actionable alternatives and explicit apply confirmation.
 
 Empty/error/loading states must tell the user how to proceed and preserve unaffected work.
+
+## Phase 4 implementation note
+
+Version 0.5.0 implements this shell with Overview, Courses & Data, Timetable Planner, an explicitly upcoming Degree Planner, and Scenarios. The planner uses independent scrolling zones at desktop width and collapses to a single column without horizontal overflow on narrow viewports. Exact meeting intervals are rendered as focusable buttons plus a semantic table. Scenario and result save flows use labeled native dialogs; archive/delete remain explicit; the keyboard skip link preserves the current route. See `23_PHASE_4_BROWSER_WORKSPACE_ENGINEERING_REPORT.md` for measured browser verification.
