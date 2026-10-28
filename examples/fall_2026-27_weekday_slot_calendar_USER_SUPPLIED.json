@@ -1,0 +1,967 @@
+{
+  "schema_version": "2.0.0",
+  "campus": "Vellore",
+  "semester_label": "Fall Semester 2026-27",
+  "profile_name": "Fall 2026-27 - Weekdays from user-supplied VTOP timetable grid",
+  "timezone": "Asia/Kolkata",
+  "verification_status": "user_supplied",
+  "evidence": {
+    "kind": "user_provided_timetable_grid",
+    "reference": "Manually transcribed from user-supplied Fall 2026-27 registration and weekday theory/lab slot grid (28 October 2026). No official document provenance independently reviewed.",
+    "notes": "Monday through Friday only; Saturday and Sunday omitted by request. V1-V7 treated as other/reserved meeting blocks; their teaching semantics are not inferred. Session IDs group consecutive pairs of laboratory grid positions, but 1-minute breaks between adjoining units are preserved. This is NOT a Winter Semester 2026-27 calendar and does not constitute official institutional verification."
+  },
+  "slots": {
+    "L1": [
+      {
+        "day": 0,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "lab",
+        "session_id": "MON-AM-1"
+      }
+    ],
+    "L2": [
+      {
+        "day": 0,
+        "start_minute": 531,
+        "end_minute": 580,
+        "kind": "lab",
+        "session_id": "MON-AM-1"
+      }
+    ],
+    "L3": [
+      {
+        "day": 0,
+        "start_minute": 591,
+        "end_minute": 640,
+        "kind": "lab",
+        "session_id": "MON-AM-2"
+      }
+    ],
+    "L4": [
+      {
+        "day": 0,
+        "start_minute": 641,
+        "end_minute": 690,
+        "kind": "lab",
+        "session_id": "MON-AM-2"
+      }
+    ],
+    "L5": [
+      {
+        "day": 0,
+        "start_minute": 700,
+        "end_minute": 750,
+        "kind": "lab",
+        "session_id": "MON-AM-3"
+      }
+    ],
+    "L6": [
+      {
+        "day": 0,
+        "start_minute": 751,
+        "end_minute": 800,
+        "kind": "lab",
+        "session_id": "MON-AM-3"
+      }
+    ],
+    "L7": [
+      {
+        "day": 1,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "lab",
+        "session_id": "TUE-AM-1"
+      }
+    ],
+    "L8": [
+      {
+        "day": 1,
+        "start_minute": 531,
+        "end_minute": 580,
+        "kind": "lab",
+        "session_id": "TUE-AM-1"
+      }
+    ],
+    "L9": [
+      {
+        "day": 1,
+        "start_minute": 591,
+        "end_minute": 640,
+        "kind": "lab",
+        "session_id": "TUE-AM-2"
+      }
+    ],
+    "L10": [
+      {
+        "day": 1,
+        "start_minute": 641,
+        "end_minute": 690,
+        "kind": "lab",
+        "session_id": "TUE-AM-2"
+      }
+    ],
+    "L11": [
+      {
+        "day": 1,
+        "start_minute": 700,
+        "end_minute": 750,
+        "kind": "lab",
+        "session_id": "TUE-AM-3"
+      }
+    ],
+    "L12": [
+      {
+        "day": 1,
+        "start_minute": 751,
+        "end_minute": 800,
+        "kind": "lab",
+        "session_id": "TUE-AM-3"
+      }
+    ],
+    "L13": [
+      {
+        "day": 2,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "lab",
+        "session_id": "WED-AM-1"
+      }
+    ],
+    "L14": [
+      {
+        "day": 2,
+        "start_minute": 531,
+        "end_minute": 580,
+        "kind": "lab",
+        "session_id": "WED-AM-1"
+      }
+    ],
+    "L15": [
+      {
+        "day": 2,
+        "start_minute": 591,
+        "end_minute": 640,
+        "kind": "lab",
+        "session_id": "WED-AM-2"
+      }
+    ],
+    "L16": [
+      {
+        "day": 2,
+        "start_minute": 641,
+        "end_minute": 690,
+        "kind": "lab",
+        "session_id": "WED-AM-2"
+      }
+    ],
+    "L17": [
+      {
+        "day": 2,
+        "start_minute": 700,
+        "end_minute": 750,
+        "kind": "lab",
+        "session_id": "WED-AM-3"
+      }
+    ],
+    "L18": [
+      {
+        "day": 2,
+        "start_minute": 751,
+        "end_minute": 800,
+        "kind": "lab",
+        "session_id": "WED-AM-3"
+      }
+    ],
+    "L19": [
+      {
+        "day": 3,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "lab",
+        "session_id": "THU-AM-1"
+      }
+    ],
+    "L20": [
+      {
+        "day": 3,
+        "start_minute": 531,
+        "end_minute": 580,
+        "kind": "lab",
+        "session_id": "THU-AM-1"
+      }
+    ],
+    "L21": [
+      {
+        "day": 3,
+        "start_minute": 591,
+        "end_minute": 640,
+        "kind": "lab",
+        "session_id": "THU-AM-2"
+      }
+    ],
+    "L22": [
+      {
+        "day": 3,
+        "start_minute": 641,
+        "end_minute": 690,
+        "kind": "lab",
+        "session_id": "THU-AM-2"
+      }
+    ],
+    "L23": [
+      {
+        "day": 3,
+        "start_minute": 700,
+        "end_minute": 750,
+        "kind": "lab",
+        "session_id": "THU-AM-3"
+      }
+    ],
+    "L24": [
+      {
+        "day": 3,
+        "start_minute": 751,
+        "end_minute": 800,
+        "kind": "lab",
+        "session_id": "THU-AM-3"
+      }
+    ],
+    "L25": [
+      {
+        "day": 4,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "lab",
+        "session_id": "FRI-AM-1"
+      }
+    ],
+    "L26": [
+      {
+        "day": 4,
+        "start_minute": 531,
+        "end_minute": 580,
+        "kind": "lab",
+        "session_id": "FRI-AM-1"
+      }
+    ],
+    "L27": [
+      {
+        "day": 4,
+        "start_minute": 591,
+        "end_minute": 640,
+        "kind": "lab",
+        "session_id": "FRI-AM-2"
+      }
+    ],
+    "L28": [
+      {
+        "day": 4,
+        "start_minute": 641,
+        "end_minute": 690,
+        "kind": "lab",
+        "session_id": "FRI-AM-2"
+      }
+    ],
+    "L29": [
+      {
+        "day": 4,
+        "start_minute": 700,
+        "end_minute": 750,
+        "kind": "lab",
+        "session_id": "FRI-AM-3"
+      }
+    ],
+    "L30": [
+      {
+        "day": 4,
+        "start_minute": 751,
+        "end_minute": 800,
+        "kind": "lab",
+        "session_id": "FRI-AM-3"
+      }
+    ],
+    "L31": [
+      {
+        "day": 0,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "lab",
+        "session_id": "MON-PM-1"
+      }
+    ],
+    "L32": [
+      {
+        "day": 0,
+        "start_minute": 891,
+        "end_minute": 940,
+        "kind": "lab",
+        "session_id": "MON-PM-1"
+      }
+    ],
+    "L33": [
+      {
+        "day": 0,
+        "start_minute": 951,
+        "end_minute": 1000,
+        "kind": "lab",
+        "session_id": "MON-PM-2"
+      }
+    ],
+    "L34": [
+      {
+        "day": 0,
+        "start_minute": 1001,
+        "end_minute": 1050,
+        "kind": "lab",
+        "session_id": "MON-PM-2"
+      }
+    ],
+    "L35": [
+      {
+        "day": 0,
+        "start_minute": 1060,
+        "end_minute": 1110,
+        "kind": "lab",
+        "session_id": "MON-PM-3"
+      }
+    ],
+    "L36": [
+      {
+        "day": 0,
+        "start_minute": 1111,
+        "end_minute": 1160,
+        "kind": "lab",
+        "session_id": "MON-PM-3"
+      }
+    ],
+    "L37": [
+      {
+        "day": 1,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "lab",
+        "session_id": "TUE-PM-1"
+      }
+    ],
+    "L38": [
+      {
+        "day": 1,
+        "start_minute": 891,
+        "end_minute": 940,
+        "kind": "lab",
+        "session_id": "TUE-PM-1"
+      }
+    ],
+    "L39": [
+      {
+        "day": 1,
+        "start_minute": 951,
+        "end_minute": 1000,
+        "kind": "lab",
+        "session_id": "TUE-PM-2"
+      }
+    ],
+    "L40": [
+      {
+        "day": 1,
+        "start_minute": 1001,
+        "end_minute": 1050,
+        "kind": "lab",
+        "session_id": "TUE-PM-2"
+      }
+    ],
+    "L41": [
+      {
+        "day": 1,
+        "start_minute": 1060,
+        "end_minute": 1110,
+        "kind": "lab",
+        "session_id": "TUE-PM-3"
+      }
+    ],
+    "L42": [
+      {
+        "day": 1,
+        "start_minute": 1111,
+        "end_minute": 1160,
+        "kind": "lab",
+        "session_id": "TUE-PM-3"
+      }
+    ],
+    "L43": [
+      {
+        "day": 2,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "lab",
+        "session_id": "WED-PM-1"
+      }
+    ],
+    "L44": [
+      {
+        "day": 2,
+        "start_minute": 891,
+        "end_minute": 940,
+        "kind": "lab",
+        "session_id": "WED-PM-1"
+      }
+    ],
+    "L45": [
+      {
+        "day": 2,
+        "start_minute": 951,
+        "end_minute": 1000,
+        "kind": "lab",
+        "session_id": "WED-PM-2"
+      }
+    ],
+    "L46": [
+      {
+        "day": 2,
+        "start_minute": 1001,
+        "end_minute": 1050,
+        "kind": "lab",
+        "session_id": "WED-PM-2"
+      }
+    ],
+    "L47": [
+      {
+        "day": 2,
+        "start_minute": 1060,
+        "end_minute": 1110,
+        "kind": "lab",
+        "session_id": "WED-PM-3"
+      }
+    ],
+    "L48": [
+      {
+        "day": 2,
+        "start_minute": 1111,
+        "end_minute": 1160,
+        "kind": "lab",
+        "session_id": "WED-PM-3"
+      }
+    ],
+    "L49": [
+      {
+        "day": 3,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "lab",
+        "session_id": "THU-PM-1"
+      }
+    ],
+    "L50": [
+      {
+        "day": 3,
+        "start_minute": 891,
+        "end_minute": 940,
+        "kind": "lab",
+        "session_id": "THU-PM-1"
+      }
+    ],
+    "L51": [
+      {
+        "day": 3,
+        "start_minute": 951,
+        "end_minute": 1000,
+        "kind": "lab",
+        "session_id": "THU-PM-2"
+      }
+    ],
+    "L52": [
+      {
+        "day": 3,
+        "start_minute": 1001,
+        "end_minute": 1050,
+        "kind": "lab",
+        "session_id": "THU-PM-2"
+      }
+    ],
+    "L53": [
+      {
+        "day": 3,
+        "start_minute": 1060,
+        "end_minute": 1110,
+        "kind": "lab",
+        "session_id": "THU-PM-3"
+      }
+    ],
+    "L54": [
+      {
+        "day": 3,
+        "start_minute": 1111,
+        "end_minute": 1160,
+        "kind": "lab",
+        "session_id": "THU-PM-3"
+      }
+    ],
+    "L55": [
+      {
+        "day": 4,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "lab",
+        "session_id": "FRI-PM-1"
+      }
+    ],
+    "L56": [
+      {
+        "day": 4,
+        "start_minute": 891,
+        "end_minute": 940,
+        "kind": "lab",
+        "session_id": "FRI-PM-1"
+      }
+    ],
+    "L57": [
+      {
+        "day": 4,
+        "start_minute": 951,
+        "end_minute": 1000,
+        "kind": "lab",
+        "session_id": "FRI-PM-2"
+      }
+    ],
+    "L58": [
+      {
+        "day": 4,
+        "start_minute": 1001,
+        "end_minute": 1050,
+        "kind": "lab",
+        "session_id": "FRI-PM-2"
+      }
+    ],
+    "L59": [
+      {
+        "day": 4,
+        "start_minute": 1060,
+        "end_minute": 1110,
+        "kind": "lab",
+        "session_id": "FRI-PM-3"
+      }
+    ],
+    "L60": [
+      {
+        "day": 4,
+        "start_minute": 1111,
+        "end_minute": 1160,
+        "kind": "lab",
+        "session_id": "FRI-PM-3"
+      }
+    ],
+    "A1": [
+      {
+        "day": 0,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "theory"
+      },
+      {
+        "day": 2,
+        "start_minute": 540,
+        "end_minute": 590,
+        "kind": "theory"
+      }
+    ],
+    "A2": [
+      {
+        "day": 0,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "theory"
+      },
+      {
+        "day": 2,
+        "start_minute": 900,
+        "end_minute": 950,
+        "kind": "theory"
+      }
+    ],
+    "B1": [
+      {
+        "day": 1,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "theory"
+      },
+      {
+        "day": 3,
+        "start_minute": 540,
+        "end_minute": 590,
+        "kind": "theory"
+      }
+    ],
+    "B2": [
+      {
+        "day": 1,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "theory"
+      },
+      {
+        "day": 3,
+        "start_minute": 900,
+        "end_minute": 950,
+        "kind": "theory"
+      }
+    ],
+    "C1": [
+      {
+        "day": 2,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "theory"
+      },
+      {
+        "day": 4,
+        "start_minute": 540,
+        "end_minute": 590,
+        "kind": "theory"
+      }
+    ],
+    "C2": [
+      {
+        "day": 2,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "theory"
+      },
+      {
+        "day": 4,
+        "start_minute": 900,
+        "end_minute": 950,
+        "kind": "theory"
+      }
+    ],
+    "D1": [
+      {
+        "day": 0,
+        "start_minute": 600,
+        "end_minute": 650,
+        "kind": "theory"
+      },
+      {
+        "day": 3,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "theory"
+      }
+    ],
+    "D2": [
+      {
+        "day": 0,
+        "start_minute": 960,
+        "end_minute": 1010,
+        "kind": "theory"
+      },
+      {
+        "day": 3,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "theory"
+      }
+    ],
+    "E1": [
+      {
+        "day": 1,
+        "start_minute": 600,
+        "end_minute": 650,
+        "kind": "theory"
+      },
+      {
+        "day": 4,
+        "start_minute": 480,
+        "end_minute": 530,
+        "kind": "theory"
+      }
+    ],
+    "E2": [
+      {
+        "day": 1,
+        "start_minute": 960,
+        "end_minute": 1010,
+        "kind": "theory"
+      },
+      {
+        "day": 4,
+        "start_minute": 840,
+        "end_minute": 890,
+        "kind": "theory"
+      }
+    ],
+    "F1": [
+      {
+        "day": 0,
+        "start_minute": 540,
+        "end_minute": 590,
+        "kind": "theory"
+      },
+      {
+        "day": 2,
+        "start_minute": 600,
+        "end_minute": 650,
+        "kind": "theory"
+      }
+    ],
+    "F2": [
+      {
+        "day": 0,
+        "start_minute": 900,
+        "end_minute": 950,
+        "kind": "theory"
+      },
+      {
+        "day": 2,
+        "start_minute": 960,
+        "end_minute": 1010,
+        "kind": "theory"
+      }
+    ],
+    "G1": [
+      {
+        "day": 1,
+        "start_minute": 540,
+        "end_minute": 590,
+        "kind": "theory"
+      },
+      {
+        "day": 3,
+        "start_minute": 600,
+        "end_minute": 650,
+        "kind": "theory"
+      }
+    ],
+    "G2": [
+      {
+        "day": 1,
+        "start_minute": 900,
+        "end_minute": 950,
+        "kind": "theory"
+      },
+      {
+        "day": 3,
+        "start_minute": 960,
+        "end_minute": 1010,
+        "kind": "theory"
+      }
+    ],
+    "TA1": [
+      {
+        "day": 4,
+        "start_minute": 600,
+        "end_minute": 650,
+        "kind": "theory"
+      }
+    ],
+    "TA2": [
+      {
+        "day": 4,
+        "start_minute": 960,
+        "end_minute": 1010,
+        "kind": "theory"
+      }
+    ],
+    "TAA1": [
+      {
+        "day": 1,
+        "start_minute": 720,
+        "end_minute": 770,
+        "kind": "theory"
+      }
+    ],
+    "TAA2": [
+      {
+        "day": 1,
+        "start_minute": 1080,
+        "end_minute": 1130,
+        "kind": "theory"
+      }
+    ],
+    "TB1": [
+      {
+        "day": 0,
+        "start_minute": 660,
+        "end_minute": 710,
+        "kind": "theory"
+      }
+    ],
+    "TB2": [
+      {
+        "day": 0,
+        "start_minute": 1020,
+        "end_minute": 1070,
+        "kind": "theory"
+      }
+    ],
+    "TBB2": [
+      {
+        "day": 2,
+        "start_minute": 1080,
+        "end_minute": 1130,
+        "kind": "theory"
+      }
+    ],
+    "TC1": [
+      {
+        "day": 1,
+        "start_minute": 660,
+        "end_minute": 710,
+        "kind": "theory"
+      }
+    ],
+    "TC2": [
+      {
+        "day": 1,
+        "start_minute": 1020,
+        "end_minute": 1070,
+        "kind": "theory"
+      }
+    ],
+    "TCC1": [
+      {
+        "day": 3,
+        "start_minute": 720,
+        "end_minute": 770,
+        "kind": "theory"
+      }
+    ],
+    "TCC2": [
+      {
+        "day": 3,
+        "start_minute": 1080,
+        "end_minute": 1130,
+        "kind": "theory"
+      }
+    ],
+    "TD1": [
+      {
+        "day": 4,
+        "start_minute": 720,
+        "end_minute": 770,
+        "kind": "theory"
+      }
+    ],
+    "TD2": [
+      {
+        "day": 2,
+        "start_minute": 1020,
+        "end_minute": 1070,
+        "kind": "theory"
+      }
+    ],
+    "TDD2": [
+      {
+        "day": 4,
+        "start_minute": 1080,
+        "end_minute": 1130,
+        "kind": "theory"
+      }
+    ],
+    "TE1": [
+      {
+        "day": 3,
+        "start_minute": 660,
+        "end_minute": 710,
+        "kind": "theory"
+      }
+    ],
+    "TE2": [
+      {
+        "day": 3,
+        "start_minute": 1020,
+        "end_minute": 1070,
+        "kind": "theory"
+      }
+    ],
+    "TF1": [
+      {
+        "day": 4,
+        "start_minute": 660,
+        "end_minute": 710,
+        "kind": "theory"
+      }
+    ],
+    "TF2": [
+      {
+        "day": 4,
+        "start_minute": 1020,
+        "end_minute": 1070,
+        "kind": "theory"
+      }
+    ],
+    "TG1": [
+      {
+        "day": 0,
+        "start_minute": 720,
+        "end_minute": 770,
+        "kind": "theory"
+      }
+    ],
+    "TG2": [
+      {
+        "day": 0,
+        "start_minute": 1080,
+        "end_minute": 1130,
+        "kind": "theory"
+      }
+    ],
+    "V1": [
+      {
+        "day": 2,
+        "start_minute": 660,
+        "end_minute": 710,
+        "kind": "other"
+      }
+    ],
+    "V2": [
+      {
+        "day": 2,
+        "start_minute": 720,
+        "end_minute": 770,
+        "kind": "other"
+      }
+    ],
+    "V3": [
+      {
+        "day": 0,
+        "start_minute": 1141,
+        "end_minute": 1190,
+        "kind": "other"
+      }
+    ],
+    "V4": [
+      {
+        "day": 1,
+        "start_minute": 1141,
+        "end_minute": 1190,
+        "kind": "other"
+      }
+    ],
+    "V5": [
+      {
+        "day": 2,
+        "start_minute": 1141,
+        "end_minute": 1190,
+        "kind": "other"
+      }
+    ],
+    "V6": [
+      {
+        "day": 3,
+        "start_minute": 1141,
+        "end_minute": 1190,
+        "kind": "other"
+      }
+    ],
+    "V7": [
+      {
+        "day": 4,
+        "start_minute": 1141,
+        "end_minute": 1190,
+        "kind": "other"
+      }
+    ]
+  }
+}

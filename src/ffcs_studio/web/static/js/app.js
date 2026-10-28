@@ -113,14 +113,19 @@ calendarSelect.addEventListener("change", updateCalendarControls);
 document.querySelector("#resolve-slot").addEventListener("click", resolveLeftSlot);
 document.querySelector("#check-conflict").addEventListener("click", checkSlotConflict);
 
-async function loadCalendars() {
+async function loadCalendars(preferredCalendarId = "") {
   try {
     const result = await api("/api/v1/calendars");
     calendarSelect.replaceChildren(option("", result.items.length ? "Select a calendar" : "No committed calendars"));
+    let selectedActive = false;
     for (const item of result.items) {
-      const label = `${item.semester_label} — ${item.profile_name} v${item.version} [${item.verification_status}]`;
+      const activeLabel = item.active ? " · active for semester" : "";
+      const label = `${item.semester_label} — ${item.profile_name} v${item.version} [${item.verification_status}]${activeLabel}`;
       calendarSelect.append(option(item.calendar_id, label));
-      if (item.active) calendarSelect.value = item.calendar_id;
+      if (item.calendar_id === preferredCalendarId || (!preferredCalendarId && item.active && !selectedActive)) {
+        calendarSelect.value = item.calendar_id;
+        selectedActive = true;
+      }
     }
     updateCalendarControls();
   } catch (error) {
@@ -164,7 +169,7 @@ async function commitCalendar() {
     const result = await api("/api/v1/calendars/commit", { method: "POST", json: { preview_id: calendarFlow.previewId, make_active: true } });
     calendarFeedback.textContent = `Calendar ${result.status}: ${result.calendar_id}`;
     calendarCommit.disabled = true;
-    await loadCalendars();
+    await loadCalendars(result.calendar_id);
   } catch (error) {
     calendarFeedback.textContent = error.message;
   }

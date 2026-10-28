@@ -23,4 +23,5 @@ Suggested additional input when ready: one screenshot or official downloadable P
 ## Phase 2 status — 2026-10-28
 
 - Q-01 remains open. Calendar schema, import, immutable versioning, resolution and clash machinery are implemented, but no authentic Winter Semester 2026–27 Vellore chart was found in the supplied local references. The bundled example is synthetic and remains `draft_unverified`.
+- A Fall Semester 2026–27 weekday grid is now available as a source-attributed `user_supplied` profile with exact theory/lab positions. It is not an official source, does not answer the Winter calendar question, and must remain semester-scoped.
 - Q-02 remains open. Pairing states are persisted against exact offering-revision allocation IDs. No official pairing source was supplied, so required multi-component candidates fail closed when an explicit permitted pairing is absent.

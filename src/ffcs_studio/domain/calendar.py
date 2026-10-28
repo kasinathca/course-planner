@@ -81,13 +81,22 @@ class WeeklyInterval:
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {
             "day": int(self.day),
+            "day_name": self.day.name.title(),
             "start_minute": self.start_minute,
             "end_minute": self.end_minute,
+            "start_time": _clock_time(self.start_minute),
+            "end_time": _clock_time(self.end_minute),
+            "duration_minutes": self.duration_minutes,
             "kind": self.kind.value,
         }
         if self.session_id is not None:
             result["session_id"] = self.session_id
         return result
+
+
+def _clock_time(minute: int) -> str:
+    hours, minutes = divmod(minute, 60)
+    return f"{hours:02d}:{minutes:02d}"
 
 
 @dataclass(frozen=True, slots=True)

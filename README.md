@@ -1,6 +1,6 @@
 # FFCS Studio
 
-FFCS Studio 0.3 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates.
+FFCS Studio 0.3.1 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates.
 
 It never infers official slot times or faculty pairings. Calendar times resolve only from a selected local calendar version; unknown slots fail closed. Multi-component registration candidates require revision-scoped pairing evidence. The repository does not contain an authentic Winter 2026–27 VIT timetable, so the bundled calendar is conspicuously synthetic and draft-only. Phase 2 does not generate full timetables. The stack is Python 3.12+, FastAPI/Uvicorn, SQLite, and local HTML/CSS/vanilla JavaScript. There is no Node.js, npm, React, Electron, PySide6/Qt, CDN, cloud database, external API, or runtime internet requirement.
 
@@ -72,6 +72,18 @@ Before a schema migration or a non-duplicate import commit, the application crea
 
 The API includes calendar list/detail/validate/preview/commit/select, slot resolution, conflict checking, offering component classification, and bounded one-course registration options. Legacy calendar schema `1.0.0` remains readable through a compatibility adapter. A user-provided `official_verified` string is not trusted by itself; reviewed official-document evidence is required, otherwise the claim is downgraded to `user_supplied`.
 
+The repository includes `examples/fall_2026-27_weekday_slot_calendar_USER_SUPPLIED.json`, a non-identifying transcription of the user-supplied Vellore Fall Semester 2026–27 weekday grid. It contains 101 atomic codes and 115 exact half-open intervals, including all `L1`–`L60` lab codes. It is explicitly `user_supplied`, not independently verified institutional evidence, and must not be reused silently for Winter or another semester. The private registration reference used to check the grid remains under the Git-ignored `private/` directory and is never packaged.
+
+For a privacy-preserving local check of a registration reference:
+
+```powershell
+.\.venv\Scripts\python.exe tools\validate_registered_timetable.py `
+  --calendar examples\fall_2026-27_weekday_slot_calendar_USER_SUPPLIED.json `
+  --registrations private\FFCS_Studio_Fall_2026-27_Registered_Components_LOCAL_ONLY.json
+```
+
+The command prints aggregate counts, contact minutes, session count and clash count only. It does not print course, faculty, room or registration-row details.
+
 ## Validate VTOP JSON
 
 Validate either supplied sanitized fixture:
@@ -93,4 +105,4 @@ Schema errors include JSON Pointer locations and produce exit code `1`. Invalid 
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md` and `docs/20_PHASE_2_ENGINEERING_REPORT.md`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.
+Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md`, `docs/20_PHASE_2_ENGINEERING_REPORT.md`, and `docs/21_FALL_2026_WEEKDAY_CALENDAR_INTEGRATION.md`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.
