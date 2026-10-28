@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import secrets
 import sqlite3
+from importlib import resources
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -14,8 +16,15 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from ffcs_studio.config import Settings
+from ffcs_studio.persistence.calendar_repository import CalendarRepository
 from ffcs_studio.persistence.database import Database, DatabaseError
 from ffcs_studio.persistence.repositories import Repository
+from ffcs_studio.services.calendar_service import (
+    CalendarService,
+    CalendarServiceError,
+    CalendarTokenNotFound,
+    InvalidCalendar,
+)
 from ffcs_studio.services.catalog_service import CatalogService
 from ffcs_studio.services.import_service import (
     ImportService,
@@ -26,6 +35,7 @@ from ffcs_studio.services.import_service import (
     UnsupportedUpload,
 )
 from ffcs_studio.version import VTOP_SCHEMA_VERSION, __version__
+from ffcs_studio.web.routes.calendars import router as calendars_router
 from ffcs_studio.web.routes.courses import router as courses_router
 from ffcs_studio.web.routes.imports import router as imports_router
 from ffcs_studio.web.security import LocalSecurityMiddleware
@@ -52,6 +62,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     database = Database(runtime.database_path, runtime.sqlite_busy_timeout_ms)
     database_schema_version = database.initialize()
     repository = Repository(database)
+    calendar_repository = CalendarRepository(database)
+    schema_text = (
+        resources.files("ffcs_studio.resources.schemas")
+        .joinpath("slot-calendar.schema.json")
+        .read_text(encoding="utf-8")
+    )
+    calendar_service = CalendarService(calendar_repository, json.loads(schema_text))
     import_service = ImportService(
         database,
         repository,
@@ -69,6 +86,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = runtime
     app.state.database = database
     app.state.repository = repository
+    app.state.calendar_repository = calendar_repository
+    app.state.calendar_service = calendar_service
     app.state.import_service = import_service
     app.state.catalog_service = CatalogService(repository)
     app.state.csrf_token = csrf_token
@@ -77,6 +96,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.mount("/static", StaticFiles(directory=WEB_ROOT / "static"), name="static")
     app.include_router(imports_router)
     app.include_router(courses_router)
+    app.include_router(calendars_router)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
@@ -103,6 +123,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             status_code = 410
         elif isinstance(exc, StalePreview):
             status_code = 409
+        else:
+            status_code = 400
+        return JSONResponse(
+            status_code=status_code,
+            content={"error": {"code": exc.code, "message": str(exc)}},
+        )
+
+    @app.exception_handler(CalendarServiceError)
+    async def calendar_error(_request: Request, exc: CalendarServiceError) -> JSONResponse:
+        if isinstance(exc, CalendarTokenNotFound):
+            status_code = 410
+        elif isinstance(exc, InvalidCalendar):
+            status_code = 422
         else:
             status_code = 400
         return JSONResponse(

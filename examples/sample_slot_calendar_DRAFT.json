@@ -1,48 +1,28 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "2.0.0",
   "campus": "Vellore",
   "semester_label": "EXAMPLE_ONLY_NOT_OFFICIAL",
+  "profile_name": "Synthetic Phase 2 demonstration",
   "timezone": "Asia/Kolkata",
   "verification_status": "draft_unverified",
-  "source_reference": "Illustrative tiny synthetic intervals for unit test only; NOT a full VIT slot calendar",
+  "evidence": {
+    "kind": "synthetic_example",
+    "reference": "Illustrative intervals for tests and UI demonstration only; not a VIT timetable",
+    "notes": "Do not use this file for real planning."
+  },
   "slots": {
     "A1": [
-      {
-        "day": 0,
-        "start_minute": 480,
-        "end_minute": 530,
-        "kind": "theory"
-      },
-      {
-        "day": 2,
-        "start_minute": 540,
-        "end_minute": 590,
-        "kind": "theory"
-      }
+      {"day": 0, "start_minute": 480, "end_minute": 530, "kind": "theory"},
+      {"day": 2, "start_minute": 540, "end_minute": 590, "kind": "theory"}
     ],
     "L1": [
-      {
-        "day": 0,
-        "start_minute": 480,
-        "end_minute": 530,
-        "kind": "lab"
-      }
+      {"day": 0, "start_minute": 480, "end_minute": 530, "kind": "lab", "session_id": "SYNTHETIC-LAB-1"}
     ],
     "L2": [
-      {
-        "day": 0,
-        "start_minute": 530,
-        "end_minute": 580,
-        "kind": "lab"
-      }
+      {"day": 0, "start_minute": 530, "end_minute": 580, "kind": "lab", "session_id": "SYNTHETIC-LAB-1"}
     ],
     "A2": [
-      {
-        "day": 0,
-        "start_minute": 840,
-        "end_minute": 890,
-        "kind": "theory"
-      }
+      {"day": 0, "start_minute": 840, "end_minute": 890, "kind": "theory"}
     ]
   }
 }

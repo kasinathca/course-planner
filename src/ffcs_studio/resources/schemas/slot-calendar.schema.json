@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ffcs-studio.local/schemas/slot-calendar-2.0.0.json",
+  "title": "FFCS Studio evidence-aware slot calendar",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "campus", "semester_label", "profile_name", "timezone", "verification_status", "evidence", "slots"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "campus": {"type": "string", "minLength": 1, "maxLength": 100},
+    "semester_label": {"type": "string", "minLength": 1, "maxLength": 200},
+    "profile_name": {"type": "string", "minLength": 1, "maxLength": 200},
+    "timezone": {"const": "Asia/Kolkata"},
+    "verification_status": {"enum": ["official_verified", "evidence_supported", "draft_unverified", "user_supplied"]},
+    "evidence": {"type": "object", "additionalProperties": false, "required": ["kind", "reference"], "properties": {
+      "kind": {"type": "string", "minLength": 1, "maxLength": 100},
+      "reference": {"type": "string", "minLength": 1, "maxLength": 2000},
+      "reviewed_by": {"type": "string", "minLength": 1, "maxLength": 200},
+      "reviewed_at": {"type": "string", "format": "date-time"},
+      "notes": {"type": "string", "maxLength": 4000}
+    }},
+    "slots": {"type": "object", "minProperties": 1, "maxProperties": 1000, "propertyNames": {"type": "string", "minLength": 1, "maxLength": 50, "pattern": "^[^+]+$"}, "additionalProperties": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"$ref": "#/$defs/interval"}}}
+  },
+  "$defs": {"interval": {"type": "object", "additionalProperties": false, "required": ["day", "start_minute", "end_minute", "kind"], "properties": {
+    "day": {"type": "integer", "minimum": 0, "maximum": 6},
+    "start_minute": {"type": "integer", "minimum": 0, "maximum": 1439},
+    "end_minute": {"type": "integer", "minimum": 1, "maximum": 1440},
+    "kind": {"enum": ["theory", "lab", "tutorial", "project", "soft_skills", "other"]},
+    "session_id": {"type": "string", "minLength": 1, "maxLength": 100}
+  }}}
+}

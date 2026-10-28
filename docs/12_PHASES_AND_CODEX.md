@@ -16,9 +16,9 @@
 - Expose validated local API endpoints and a **simple functional browser import screen**. The UI must call real backend services; no mock data.
 - **Deliverable**: import → preview → commit → browse real allocation rows offline in browser.
 
-## Phase 2 — verified Vellore calendar and component rules
+## Phase 2 — versioned calendar and component rules
 
-- Versioned slot calendar from official verified source only; component parser, interval overlap, faculty pairing rule states, ETL/ETP/TH handling.
+- Versioned slot calendars with evidence status; component parser, interval overlap, faculty pairing rule states, ETL/ETP/TH handling. If an authentic official source is unavailable, implement the machinery with synthetic draft data and keep the official calendar question open.
 - Explicit uncertain/unknown validation results; never mark unverified timetable valid.
 - **Deliverable**: rule suite and issue tracking pass.
 
@@ -53,6 +53,4 @@
 - Keep `domain` and `solver` independent from HTTP routes. Preserve all source rows and semester context.
 - Do not push commits to GitHub without express user approval.
 
-## First Codex task (copyable)
-
-> Inspect the local repository and all the documents, beginning with `AGENTS.md`, `docs/00_START_HERE.md`, `docs/10_IMPLEMENTATION.md`, `docs/12_PHASES_AND_CODEX.md` and `docs/16_LOCALHOST_RUNTIME_AND_SECURITY.md`. Implement **Phase 0 only** as a Python + FastAPI localhost website, with canonical typed course/allocation models, schema validator CLI, proper local startup script, `/health` endpoint, a minimal browser landing page, sanitized fixtures and tests. Serve at `http://127.0.0.1:8765`. Do **not** build PySide6/Qt, desktop executable, Node app, heavy UI, solver or live Tampermonkey automation. Actually run the tests and HTTP smoke checks and report precisely what was tested. Do not push GitHub changes without approval.
+Phase 0 and Phase 1 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.

@@ -15,8 +15,9 @@
       <nav aria-label="Primary">
         <a href="#overview">Overview</a>
         <a href="#courses-data">Courses &amp; Data</a>
+        <a href="#slot-inspector">Slot Inspector</a>
       </nav>
-      <span class="phase">Phase 1 local data</span>
+      <span class="phase">Phase 2 calendar engine</span>
     </header>
     <main class="workspace">
       <section id="overview" class="status-card" aria-labelledby="page-title">
@@ -152,11 +153,54 @@
               </table>
             </div>
             <p id="detail-missing" class="source-note"></p>
+            <h4>Component interpretation</h4>
+            <p id="detail-component-status" class="source-note"></p>
+            <ul id="detail-candidates" class="issue-list"></ul>
             <ul id="detail-warnings" class="issue-list" hidden></ul>
             <p id="detail-provenance" class="provenance"></p>
           </article>
         </section>
       </div>
+
+      <section id="slot-inspector" class="panel inspector" aria-labelledby="slot-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Slot &amp; Component Inspector</p>
+            <h2 id="slot-title">Verify calendar-backed slot behavior</h2>
+            <p>Only selected, versioned calendars resolve times. Unknown slots remain unresolved.</p>
+          </div>
+          <span id="calendar-state" class="state-pill">No calendar selected</span>
+        </div>
+        <div class="inspector-grid">
+          <div>
+            <h3>Import a calendar</h3>
+            <label class="file-picker" for="calendar-file">
+              <span>Select calendar JSON</span>
+              <input id="calendar-file" type="file" accept=".json,application/json">
+            </label>
+            <p id="calendar-file-detail" class="file-detail">No file selected.</p>
+            <div class="button-row">
+              <button id="calendar-validate" type="button" disabled>Validate</button>
+              <button id="calendar-preview" type="button" class="secondary" disabled>Preview</button>
+              <button id="calendar-commit" type="button" class="confirm" disabled>Commit &amp; select</button>
+            </div>
+            <div id="calendar-feedback" class="feedback" role="status" aria-live="polite">
+              Importing the bundled example creates draft data only.
+            </div>
+          </div>
+          <div>
+            <h3>Resolve and compare</h3>
+            <label>Calendar <select id="calendar-select"><option value="">No committed calendars</option></select></label>
+            <label>Left expression <input id="left-slot" value="A1" maxlength="500"></label>
+            <label>Right expression <input id="right-slot" value="L1" maxlength="500"></label>
+            <div class="button-row">
+              <button id="resolve-slot" type="button" class="secondary" disabled>Resolve left</button>
+              <button id="check-conflict" type="button" disabled>Check conflict</button>
+            </div>
+            <pre id="slot-output" class="inspection-output">Select a committed calendar to inspect slots.</pre>
+          </div>
+        </div>
+      </section>
     </main>
     <footer>All processing remains on this computer.</footer>
   </body>

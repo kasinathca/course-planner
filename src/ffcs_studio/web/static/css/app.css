@@ -153,6 +153,10 @@ td { overflow-wrap: anywhere; }
 .detail-panel .table-wrap { max-height: 350px; }
 .provenance { padding: 10px; color: var(--muted); background: #f7f8fa; border-radius: 6px; font-size: 0.82rem; overflow-wrap: anywhere; }
 .source-note { color: var(--muted); font-size: 0.84rem; }
+.inspector { margin-top: 1.5rem; }
+.inspector-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+.inspector-grid label { display: grid; gap: .35rem; margin: .75rem 0; }
+.inspection-output { min-height: 12rem; max-height: 28rem; overflow: auto; padding: 1rem; border-radius: .75rem; background: #101b2b; color: #e8f0fb; white-space: pre-wrap; }
 
 @media (max-width: 620px) {
   .site-header { padding: 0 16px; }
@@ -164,6 +168,7 @@ td { overflow-wrap: anywhere; }
 @media (max-width: 1050px) {
   .two-column { grid-template-columns: 1fr; }
   .filters { grid-template-columns: 1fr 1fr; }
+  .inspector-grid { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

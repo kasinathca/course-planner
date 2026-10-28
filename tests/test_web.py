@@ -30,7 +30,7 @@ def test_health_endpoint_is_ready_and_private() -> None:
     assert response.json() == {
         "status": "ready",
         "application": "ffcs-studio",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "schema_version": "1.0.0",
     }
     assert response.headers["cache-control"] == "no-store"

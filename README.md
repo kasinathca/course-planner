@@ -1,8 +1,8 @@
 # FFCS Studio
 
-FFCS Studio 0.2 is an offline-first course-data workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite and lets the user browse the exact course, faculty, room, slot, component, and source-provenance records.
+FFCS Studio 0.3 is an offline-first course-planning workspace served only on the local computer at `http://127.0.0.1:8765`. Phase 1 imports reviewed VTOP JSON or flattened CSV captures into SQLite. Phase 2 adds immutable semester-specific slot calendars, strict slot resolution, minute-accurate clash checks, component vocabulary, evidence-scoped pairing states, and conservative one-course registration candidates.
 
-It does not infer faculty pairings, official slot times, registrable combinations, or timetables. Those academic rules remain explicit future work. The stack is Python 3.12+, FastAPI/Uvicorn, SQLite, and local HTML/CSS/vanilla JavaScript. There is no Node.js, npm, React, Electron, PySide6/Qt, CDN, cloud database, external API, or runtime internet requirement.
+It never infers official slot times or faculty pairings. Calendar times resolve only from a selected local calendar version; unknown slots fail closed. Multi-component registration candidates require revision-scoped pairing evidence. The repository does not contain an authentic Winter 2026–27 VIT timetable, so the bundled calendar is conspicuously synthetic and draft-only. Phase 2 does not generate full timetables. The stack is Python 3.12+, FastAPI/Uvicorn, SQLite, and local HTML/CSS/vanilla JavaScript. There is no Node.js, npm, React, Electron, PySide6/Qt, CDN, cloud database, external API, or runtime internet requirement.
 
 ## Windows 11 setup
 
@@ -64,6 +64,14 @@ The default database is `%LOCALAPPDATA%\FFCSStudio\ffcs_studio.sqlite3`. Set `FF
 
 Before a schema migration or a non-duplicate import commit, the application creates a consistent SQLite backup under `<data directory>\backups` and retains the ten newest backups. For an additional manual backup, stop the server first and copy the database and `backups` directory together. Do not commit either to Git.
 
+## Import and inspect a slot calendar
+
+1. Open **Slot Inspector** and choose a calendar JSON file using schema `2.0.0`.
+2. Validate the evidence and intervals, preview counts, then explicitly commit and select the immutable version.
+3. Resolve an expression such as `A1+TA1`, or compare two expressions for minute overlap.
+
+The API includes calendar list/detail/validate/preview/commit/select, slot resolution, conflict checking, offering component classification, and bounded one-course registration options. Legacy calendar schema `1.0.0` remains readable through a compatibility adapter. A user-provided `official_verified` string is not trusted by itself; reviewed official-document evidence is required, otherwise the claim is downgraded to `user_supplied`.
+
 ## Validate VTOP JSON
 
 Validate either supplied sanitized fixture:
@@ -85,4 +93,4 @@ Schema errors include JSON Pointer locations and produce exit code `1`. Invalid 
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Project architecture and source constraints are in `AGENTS.md` and `docs/`. The Phase 1 design, API, persistence semantics, measured verification, and limitations are recorded in `docs/19_PHASE_1_ENGINEERING_REPORT.md`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, `node_modules`, or `.next` output in this repository.
+Project architecture and source constraints are in `AGENTS.md` and `docs/`. Phase reports are `docs/19_PHASE_1_ENGINEERING_REPORT.md` and `docs/20_PHASE_2_ENGINEERING_REPORT.md`. Do not place raw VTOP HTML, authentication data, student-identifying data, private source archives, databases, virtual environments, `node_modules`, or `.next` output in this repository.

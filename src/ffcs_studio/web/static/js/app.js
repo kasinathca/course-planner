@@ -22,9 +22,18 @@ const previousPage = document.querySelector("#previous-page");
 const nextPage = document.querySelector("#next-page");
 const pageLabel = document.querySelector("#page-label");
 const detailPanel = document.querySelector("#offering-detail");
+const calendarFile = document.querySelector("#calendar-file");
+const calendarValidate = document.querySelector("#calendar-validate");
+const calendarPreview = document.querySelector("#calendar-preview");
+const calendarCommit = document.querySelector("#calendar-commit");
+const calendarSelect = document.querySelector("#calendar-select");
+const calendarFeedback = document.querySelector("#calendar-feedback");
+const calendarState = document.querySelector("#calendar-state");
+const slotOutput = document.querySelector("#slot-output");
 
 const importFlow = { validationId: null, previewId: null };
 const explorer = { page: 1, pageSize: 25, total: 0 };
+const calendarFlow = { validationId: null, previewId: null };
 
 class ApiError extends Error {
   constructor(response, payload) {
@@ -86,6 +95,98 @@ document.querySelector("#close-detail").addEventListener("click", () => {
 
 loadSemesters();
 loadOfferings(1);
+loadCalendars();
+
+calendarFile.addEventListener("change", () => {
+  calendarFlow.validationId = null;
+  calendarFlow.previewId = null;
+  const file = calendarFile.files[0];
+  document.querySelector("#calendar-file-detail").textContent = file ? `${file.name} — ${formatBytes(file.size)}` : "No file selected.";
+  calendarValidate.disabled = !file;
+  calendarPreview.disabled = true;
+  calendarCommit.disabled = true;
+});
+calendarValidate.addEventListener("click", validateCalendar);
+calendarPreview.addEventListener("click", previewCalendar);
+calendarCommit.addEventListener("click", commitCalendar);
+calendarSelect.addEventListener("change", updateCalendarControls);
+document.querySelector("#resolve-slot").addEventListener("click", resolveLeftSlot);
+document.querySelector("#check-conflict").addEventListener("click", checkSlotConflict);
+
+async function loadCalendars() {
+  try {
+    const result = await api("/api/v1/calendars");
+    calendarSelect.replaceChildren(option("", result.items.length ? "Select a calendar" : "No committed calendars"));
+    for (const item of result.items) {
+      const label = `${item.semester_label} — ${item.profile_name} v${item.version} [${item.verification_status}]`;
+      calendarSelect.append(option(item.calendar_id, label));
+      if (item.active) calendarSelect.value = item.calendar_id;
+    }
+    updateCalendarControls();
+  } catch (error) {
+    calendarFeedback.textContent = error.message;
+  }
+}
+
+function updateCalendarControls() {
+  const selected = Boolean(calendarSelect.value);
+  document.querySelector("#resolve-slot").disabled = !selected;
+  document.querySelector("#check-conflict").disabled = !selected;
+  calendarState.textContent = selected ? "Calendar selected" : "No calendar selected";
+}
+
+async function validateCalendar() {
+  const file = calendarFile.files[0];
+  if (!file) return;
+  try {
+    const result = await api("/api/v1/calendars/validate", { method: "POST", json: JSON.parse(await file.text()) });
+    calendarFlow.validationId = result.validation_id;
+    calendarPreview.disabled = false;
+    calendarFeedback.textContent = `Valid ${result.calendar.verification_status} calendar. ${result.issues.length} review note(s).`;
+  } catch (error) {
+    calendarFeedback.textContent = error.message;
+  }
+}
+
+async function previewCalendar() {
+  try {
+    const result = await api("/api/v1/calendars/preview", { method: "POST", json: { validation_id: calendarFlow.validationId } });
+    calendarFlow.previewId = result.preview_id;
+    calendarCommit.disabled = false;
+    calendarFeedback.textContent = `${result.slot_count} atomic slots and ${result.interval_count} intervals; ${result.duplicate_calendar_id ? "already committed" : "new immutable version"}.`;
+  } catch (error) {
+    calendarFeedback.textContent = error.message;
+  }
+}
+
+async function commitCalendar() {
+  try {
+    const result = await api("/api/v1/calendars/commit", { method: "POST", json: { preview_id: calendarFlow.previewId, make_active: true } });
+    calendarFeedback.textContent = `Calendar ${result.status}: ${result.calendar_id}`;
+    calendarCommit.disabled = true;
+    await loadCalendars();
+  } catch (error) {
+    calendarFeedback.textContent = error.message;
+  }
+}
+
+async function resolveLeftSlot() {
+  try {
+    const result = await api("/api/v1/slots/resolve", { method: "POST", json: { calendar_id: calendarSelect.value, expression: document.querySelector("#left-slot").value } });
+    slotOutput.textContent = JSON.stringify(result, null, 2);
+  } catch (error) {
+    slotOutput.textContent = error.message;
+  }
+}
+
+async function checkSlotConflict() {
+  try {
+    const result = await api("/api/v1/conflicts/check", { method: "POST", json: { calendar_id: calendarSelect.value, left: document.querySelector("#left-slot").value, right: document.querySelector("#right-slot").value } });
+    slotOutput.textContent = JSON.stringify(result, null, 2);
+  } catch (error) {
+    slotOutput.textContent = error.message;
+  }
+}
 
 async function validateSelectedFile() {
   const file = fileInput.files[0];
@@ -261,9 +362,11 @@ function renderOfferings(items) {
 
 async function showOffering(offeringId) {
   try {
-    const [detail, allocations] = await Promise.all([
+    const [detail, allocations, components, candidates] = await Promise.all([
       api(`/api/v1/offerings/${offeringId}`),
       api(`/api/v1/offerings/${offeringId}/allocations`),
+      api(`/api/v1/offerings/${offeringId}/components`),
+      api(`/api/v1/offerings/${offeringId}/registration-options`),
     ]);
     document.querySelector("#detail-title").textContent = `${detail.course_code} — ${detail.course_title}`;
     document.querySelector("#detail-meta").textContent = `${detail.category} · ${detail.semester_label} · ${detail.campus} · ${detail.allocation_count} source row(s)`;
@@ -284,6 +387,12 @@ async function showOffering(offeringId) {
     }
     document.querySelector("#detail-provenance").textContent = `Source: ${detail.source_kind} (${detail.source_format}); file: ${detail.original_filename}; captured: ${detail.captured_at}; committed: ${detail.committed_at}; import: ${detail.import_id}`;
     document.querySelector("#detail-missing").textContent = `Not supplied by this source: ${detail.missing_metadata.join(", ").replaceAll("_", " ")}. No values were inferred.`;
+    const reviewCount = components.items.filter((item) => item.classification_status === "needs_review").length;
+    document.querySelector("#detail-component-status").textContent = `Curriculum type: ${components.curriculum_type} (${components.curriculum_type_status}); ${reviewCount} allocation type(s) need review.`;
+    document.querySelector("#detail-candidates").replaceChildren(...candidates.items.map((candidate) => {
+      const allocationIds = candidate.allocations.map((item) => `#${item.allocation_id} ${item.course_type} ${item.slot}`).join(" + ") || "No permitted combination";
+      return textElement("li", `${candidate.status}: ${allocationIds} — ${candidate.reasons.join("; ")}`);
+    }));
     const detailWarnings = document.querySelector("#detail-warnings");
     detailWarnings.replaceChildren(...detail.warnings.map((warning) =>
       textElement("li", `${warning.code}: ${warning.message}`, "warning")

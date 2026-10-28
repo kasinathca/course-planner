@@ -15,5 +15,9 @@ class Migration:
 
 def packaged_migrations() -> tuple[Migration, ...]:
     root = resources.files("ffcs_studio.persistence.schema")
-    migration = root.joinpath("0001_initial.sql")
-    return (Migration(1, "initial", migration.read_text(encoding="utf-8")),)
+    initial = root.joinpath("0001_initial.sql")
+    calendars = root.joinpath("0002_slot_calendars.sql")
+    return (
+        Migration(1, "initial", initial.read_text(encoding="utf-8")),
+        Migration(2, "slot-calendars-and-component-rules", calendars.read_text(encoding="utf-8")),
+    )
