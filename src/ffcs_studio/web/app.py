@@ -16,8 +16,15 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from ffcs_studio.config import Settings
+from ffcs_studio.degree.importers import DegreeImportError
 from ffcs_studio.persistence.calendar_repository import CalendarRepository
 from ffcs_studio.persistence.database import Database, DatabaseError
+from ffcs_studio.persistence.degree_repository import (
+    DegreeNotFound,
+    DegreeRepository,
+    DegreeRepositoryError,
+    DegreeRevisionConflict,
+)
 from ffcs_studio.persistence.repositories import Repository
 from ffcs_studio.persistence.scenario_repository import (
     SavedResultNotFound,
@@ -33,6 +40,11 @@ from ffcs_studio.services.calendar_service import (
     InvalidCalendar,
 )
 from ffcs_studio.services.catalog_service import CatalogService
+from ffcs_studio.services.degree_service import (
+    DegreePreviewNotFound,
+    DegreeService,
+    DegreeServiceError,
+)
 from ffcs_studio.services.import_service import (
     ImportService,
     ImportServiceError,
@@ -40,6 +52,11 @@ from ffcs_studio.services.import_service import (
     TemporaryRecordNotFound,
     UnsafeFilename,
     UnsupportedUpload,
+)
+from ffcs_studio.services.recovery_jobs import (
+    RecoveryJobError,
+    RecoveryJobManager,
+    RecoveryJobNotFound,
 )
 from ffcs_studio.services.scenario_service import ScenarioSourceService
 from ffcs_studio.services.solver_jobs import (
@@ -52,6 +69,7 @@ from ffcs_studio.services.solver_service import SolverService
 from ffcs_studio.version import VTOP_SCHEMA_VERSION, __version__
 from ffcs_studio.web.routes.calendars import router as calendars_router
 from ffcs_studio.web.routes.courses import router as courses_router
+from ffcs_studio.web.routes.degree import router as degree_router
 from ffcs_studio.web.routes.imports import router as imports_router
 from ffcs_studio.web.routes.scenarios import router as scenarios_router
 from ffcs_studio.web.routes.solver import router as solver_router
@@ -81,6 +99,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     repository = Repository(database)
     calendar_repository = CalendarRepository(database)
     scenario_repository = ScenarioRepository(database)
+    degree_repository = DegreeRepository(database)
+    degree_repository.ensure_programme()
     schema_text = (
         resources.files("ffcs_studio.resources.schemas")
         .joinpath("slot-calendar.schema.json")
@@ -110,8 +130,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.catalog_service = CatalogService(repository)
     app.state.solver_service = SolverService(repository, calendar_repository)
     app.state.scenario_repository = scenario_repository
+    app.state.degree_repository = degree_repository
+    app.state.degree_service = DegreeService(degree_repository, scenario_repository)
     app.state.scenario_source_service = ScenarioSourceService(repository, calendar_repository)
     app.state.solver_jobs = SolverJobManager(
+        max_workers=runtime.solver_max_workers,
+        cancel_grace_seconds=runtime.solver_cancel_grace_seconds,
+    )
+    app.state.recovery_jobs = RecoveryJobManager(
         max_workers=runtime.solver_max_workers,
         cancel_grace_seconds=runtime.solver_cancel_grace_seconds,
     )
@@ -124,7 +150,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(calendars_router)
     app.include_router(solver_router)
     app.include_router(scenarios_router)
+    app.include_router(degree_router)
     app.add_event_handler("shutdown", app.state.solver_jobs.shutdown)
+    app.add_event_handler("shutdown", app.state.recovery_jobs.shutdown)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
@@ -181,6 +209,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             content={"error": {"code": exc.code, "message": str(exc)}},
         )
 
+    @app.exception_handler(RecoveryJobError)
+    async def recovery_job_error(_request: Request, exc: RecoveryJobError) -> JSONResponse:
+        return JSONResponse(
+            status_code=404 if isinstance(exc, RecoveryJobNotFound) else 409,
+            content={"error": {"code": exc.code, "message": str(exc)}},
+        )
+
     @app.exception_handler(ScenarioRepositoryError)
     async def scenario_error(_request: Request, exc: ScenarioRepositoryError) -> JSONResponse:
         if isinstance(exc, (ScenarioNotFound, SavedResultNotFound)):
@@ -192,6 +227,29 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse(
             status_code=status_code,
             content={"error": {"code": exc.code, "message": str(exc)}},
+        )
+
+    @app.exception_handler(DegreeRepositoryError)
+    @app.exception_handler(DegreeServiceError)
+    async def degree_error(_request: Request, exc: DegreeRepositoryError) -> JSONResponse:
+        if isinstance(exc, DegreeNotFound):
+            status_code = 404
+        elif isinstance(exc, DegreePreviewNotFound):
+            status_code = 410
+        elif isinstance(exc, DegreeRevisionConflict):
+            status_code = 409
+        else:
+            status_code = 400
+        return JSONResponse(
+            status_code=status_code,
+            content={"error": {"code": exc.code, "message": str(exc)}},
+        )
+
+    @app.exception_handler(DegreeImportError)
+    async def degree_import_error(_request: Request, exc: DegreeImportError) -> JSONResponse:
+        return JSONResponse(
+            status_code=400,
+            content={"error": {"code": "invalid_degree_import", "message": str(exc)}},
         )
 
     @app.exception_handler(sqlite3.Error)

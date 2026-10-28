@@ -25,3 +25,10 @@ Suggested additional input when ready: one screenshot or official downloadable P
 - Q-01 remains open. Calendar schema, import, immutable versioning, resolution and clash machinery are implemented, but no authentic Winter Semester 2026–27 Vellore chart was found in the supplied local references. The bundled example is synthetic and remains `draft_unverified`.
 - A Fall Semester 2026–27 weekday grid is now available as a source-attributed `user_supplied` profile with exact theory/lab positions. It is not an official source, does not answer the Winter calendar question, and must remain semester-scoped.
 - Q-02 remains open. Pairing states are persisted against exact offering-revision allocation IDs. No official pairing source was supplied, so required multi-component candidates fail closed when an explicit permitted pairing is absent.
+
+## Phase 5 status — 2026-10-28
+
+- Q-05 remains open. Version 0.6.0 preserves the displayed 225 units and recorded NC target of 5 while leaving NC graduation accounting `pending_classification`; the UI does not claim official graduation readiness.
+- Q-06 remains open. Semester warning thresholds are configurable planning warnings, not an invented hard 27-credit policy.
+- Q-07 remains open. The prerequisite and relationship engines accept explicit evidence and prevent requirement double-counting, but no missing English/ENG1902–ENG1903/GER1001 institutional rule was fabricated. STS3022 source identities remain distinct in synthetic regression coverage.
+- The consolidated curriculum and five private legacy snapshots were not present in the permitted local references. Their actual 101-course catalogue and 35 completions remain pending reviewed local import.

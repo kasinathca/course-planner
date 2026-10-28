@@ -36,7 +36,7 @@ def test_migration_0003_preserves_v2_data_and_creates_backup(tmp_path: Path) -> 
     assert database.initialize(migrations[:2]) == 2
     with database.transaction() as connection:
         connection.execute("UPDATE app_state SET data_revision = 7 WHERE singleton_id = 1")
-    assert database.initialize() == 3
+    assert database.initialize(migrations[:3]) == 3
     with database.connection() as connection:
         assert (
             connection.execute(
@@ -55,7 +55,7 @@ def test_migration_0003_preserves_v2_data_and_creates_backup(tmp_path: Path) -> 
 
 def test_scenario_revision_lifecycle_and_restart(tmp_path: Path) -> None:
     database = Database(tmp_path / "ffcs.sqlite3")
-    assert database.initialize() == 3
+    assert database.initialize() == 4
     repository = ScenarioRepository(database)
     created = repository.create(
         name="First plan",

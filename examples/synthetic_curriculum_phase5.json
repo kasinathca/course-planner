@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "programme": {
+    "programme_code": "SYNTHETIC-IMTECH",
+    "name": "Synthetic Integrated Programme — Test Fixture Only",
+    "admission_batch": "TEST-ONLY",
+    "revision_code": "synthetic-v1",
+    "revision_name": "Synthetic Phase 5 acceptance curriculum",
+    "displayed_total_milli": 225000,
+    "nc_accounting_status": "pending_classification",
+    "categories": [
+      {"code": "PC", "name": "Programme Core", "recorded_target_milli": 81000, "confirmed_credit_target_milli": 81000},
+      {"code": "PE", "name": "Programme Elective", "recorded_target_milli": 48000, "confirmed_credit_target_milli": 48000},
+      {"code": "UC", "name": "University Core", "recorded_target_milli": 61000, "confirmed_credit_target_milli": 61000},
+      {"code": "UE", "name": "University Elective", "recorded_target_milli": 12000, "confirmed_credit_target_milli": 12000},
+      {"code": "SPE", "name": "Specialization Elective", "recorded_target_milli": 18000, "confirmed_credit_target_milli": 18000},
+      {"code": "BC", "name": "Bridge Course", "recorded_target_milli": 0, "confirmed_credit_target_milli": 0},
+      {"code": "NC", "name": "Non-Credit Course", "recorded_target_milli": 5000, "confirmed_credit_target_milli": null, "non_credit_target_units": 5, "counted_in_graduation": null, "notes": "Synthetic fixture intentionally preserves the source accounting ambiguity."}
+    ]
+  },
+  "courses": [
+    {"canonical_id": "syn-pc", "source_id": "legacy-pc", "code": "SYN1001", "title": "Synthetic Programme Core", "category": "PC", "curriculum_type": "TH", "credits": "4", "lecture": 3, "tutorial": 1, "practical": 0, "project": 0, "provenance": "user_supplied"},
+    {"canonical_id": "syn-pe", "source_id": "legacy-pe", "code": "SYN2001", "title": "Synthetic Programme Elective", "category": "PE", "curriculum_type": "ETL", "credits": "3.5", "lecture": 2, "tutorial": 0, "practical": 2, "project": 0, "provenance": "user_supplied"},
+    {"canonical_id": "syn-uc-a", "source_id": "sts-source-a", "code": "STS3022", "title": "Synthetic STS Alternative A", "category": "UC", "curriculum_type": "LO", "credits": "1", "provenance": "legacy", "alternative_group": "sts-basket"},
+    {"canonical_id": "syn-uc-b", "source_id": "sts-source-b", "code": "STS3022", "title": "Synthetic STS Alternative B", "category": "UC", "curriculum_type": "LO", "credits": "1", "provenance": "legacy", "alternative_group": "sts-basket"},
+    {"canonical_id": "syn-ue", "source_id": "legacy-ue", "code": "SYN3001", "title": "Synthetic University Elective", "category": "UE", "curriculum_type": "TH", "credits": "3", "provenance": "user_supplied"},
+    {"canonical_id": "syn-unknown", "source_id": "legacy-unknown", "code": "SYN9999", "title": "Synthetic Course With Unknown Credits", "category": "SPE", "curriculum_type": "UNKNOWN", "credits": null, "provenance": "user_supplied", "unresolved": ["credits", "prerequisites"]}
+  ],
+  "relationships": [
+    {"relationship_id": "sts-basket", "relationship_type": "basket", "course_ids": ["syn-uc-a", "syn-uc-b"], "requirement_key": "synthetic-sts-requirement", "verified": true, "provenance": "legacy", "notes": "Synthetic equivalent-basket fixture; not institutional evidence."}
+  ],
+  "prerequisites": [
+    {"rule_id": "syn-pe-prerequisite", "course_id": "syn-pe", "all_of": ["syn-pc"], "any_of": [], "minimum_semester": 5, "verified": true, "provenance": "user_supplied"}
+  ]
+}

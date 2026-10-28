@@ -57,3 +57,7 @@ Empty/error/loading states must tell the user how to proceed and preserve unaffe
 ## Phase 4 implementation note
 
 Version 0.5.0 implements this shell with Overview, Courses & Data, Timetable Planner, an explicitly upcoming Degree Planner, and Scenarios. The planner uses independent scrolling zones at desktop width and collapses to a single column without horizontal overflow on narrow viewports. Exact meeting intervals are rendered as focusable buttons plus a semantic table. Scenario and result save flows use labeled native dialogs; archive/delete remain explicit; the keyboard skip link preserves the current route. See `23_PHASE_4_BROWSER_WORKSPACE_ENGINEERING_REPORT.md` for measured browser verification.
+
+## Phase 5 Degree Planner implementation note
+
+Version 0.6.0 replaces the placeholder with an operational Degree Planner: named timelines, programme progress, compact catalogue search/filtering, a ten-semester matrix, status/move/remove actions, import preview/commit controls, deterministic recommendations, manual allocation states, and reviewed recovery input. Advanced import and recovery controls use progressive disclosure. At 390 px and 768 px acceptance widths the main Degree Planner surface remained single-column without horizontal page overflow; wide tables retain their own scroll containers.

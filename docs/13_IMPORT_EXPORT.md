@@ -32,6 +32,10 @@ Be careful of snapshots from prior **Fall** semester being imported into **Winte
 
 Export one consolidated canonical degree snapshot with version; keep original JSONs for audit.
 
+Phase 5 implements the version-6 reader as a reviewed, idempotent snapshot import. It preserves original `courseId`, source order, source digest, explicit source sequence, the complete source JSON, and each snapshot's independent plan. Comparison reports additions, removals, moves, and status changes; activation creates a named degree timeline and never unions another snapshot. Unknown references fail validation. A canonical curriculum schema is published at `schemas/curriculum-catalog-v1.schema.json`; its catalogue records remain distinct from semester offering rows.
+
+The private historical files named in `reference/source_manifest.json` were not available in the designated project references during Phase 5. Only the conspicuously synthetic public fixture was committed, and no actual student completion or registration record is included.
+
 ## Compatibility direction
 
 For each format implement reader and writer separately with golden fixtures and precise warnings of fields dropped; full fidelity should be guaranteed only for canonical JSON. `data.zip` is a legacy schema **sample**, not official current data.

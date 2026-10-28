@@ -37,3 +37,9 @@ Maintain the distinctive `STS3022` catalog alternatives and course basket select
 ## Course availability vs graduation progress
 
 Offering presence is semester-local; a credit target is programme-local. A course can be completed without being offered this semester. A course can be offered but not count toward a currently needed basket if already satisfied. An elective may exceed a category target by unavoidable 1 credit; warn vs hard block per programme policy. Never count credits for both equivalent alternatives.
+
+## Phase 5 implementation status
+
+Version 0.6.0 implements these rules in `ffcs_studio.degree` with exact integer milli-credit arithmetic, explicit record statuses, source-backed relationship groups, a conservative prerequisite evaluator, ten-semester totals, category surplus warnings, and configurable semester warning thresholds. SQLite migration 0004 stores programme/curriculum revisions, catalogue identities, relationships, prerequisites, plan revisions, manual availability history, scenario links, and recovery decisions without changing migrations 0001–0003.
+
+The recorded PC/PE/UC/UE/SPE/BC/NC targets are seeded as a programme-specific 2024–25 policy. NC remains `pending_classification`; it is displayed but is not silently counted as ordinary confirmed credit. The private consolidated curriculum and five historical JSON snapshots were not present in the designated references during Phase 5, so the real 101-course/35-completion migration is not claimed. The reviewed canonical and legacy import paths are exercised with conspicuously synthetic fixtures instead.

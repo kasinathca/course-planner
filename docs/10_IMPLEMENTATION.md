@@ -83,3 +83,9 @@ These paths are proposed stable contracts; document any justified changes. Retur
 ## Implemented Phase 4 browser workspace
 
 Version 0.5.0 implements the five-destination local shell and keeps the solver/domain boundary intact. Browser modules under `web/static/js/` handle navigation, data import/exploration, bounded scenario-document state, solver polling, timetable rendering, and persistent scenario controls. SQLite migration 0003 stores versioned scenario revisions and immutable timetable snapshots; optimistic expected-revision checks prevent silent overwrites. The browser never rebuilds historical results from current allocations. Exact architecture, browser evidence, performance measurements, and limitations are in `23_PHASE_4_BROWSER_WORKSPACE_ENGINEERING_REPORT.md`.
+
+## Implemented Phase 5 degree and recovery architecture
+
+Version 0.6.0 adds a framework-independent `degree/` domain, `DegreeRepository`, `DegreeService`, process-based `RecoveryJobManager`, versioned `/api/v1/degree/*` and `/api/v1/recovery/*` routes, and a local ES-module Degree Planner. Migration 0004 is additive and the plan APIs use expected-revision concurrency. Curriculum snapshots retain canonical source JSON and digests locally; plan revisions retain normalized entries plus their revision document. Timetable transfer delegates feasibility to the existing Phase 3/4 candidate and solver services, while saved-scenario recovery consumes their exact candidate identities and minute-resolved meetings rather than inventing sections.
+
+Exact recovery uses a lexicographic objective and reports whether the minimum was proven. Expensive recovery jobs run in bounded spawned processes with cancellation and shutdown. Direct recovery remains available for small reviewed payloads; no path polls or submits to VTOP.

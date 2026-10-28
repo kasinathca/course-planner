@@ -42,6 +42,8 @@ Phase 4 is a historical completed gate as of version 0.5.0. Its responsive works
 - Semester plan editor, category accounting, alternatives/exclusions, five historical snapshot migrations and manual registered/full-section recovery.
 - **Deliverable**: tested term planning and recovery flow.
 
+Phase 5 is a historical completed gate as of version 0.6.0. The versioned degree domain, migration 0004, reviewed import pipeline, scenario transfer, browser workspace, exact recovery engine, verification evidence, and private-source limitation are recorded in `docs/24_PHASE_5_DEGREE_PLANNING_AND_RECOVERY_REPORT.md`. The five private historical snapshots were unavailable, so their actual contents were not migrated or published; the importer is complete and tested with public synthetic fixtures. Do not begin Phase 6 without an explicit user request.
+
 ## Phase 6 — VTOP userscript, interoperability and portable startup
 
 - Manual-selection-first Tampermonkey collector that exports a reviewed JSON snapshot; no automated VTOP requests/registration.
@@ -57,4 +59,4 @@ Phase 4 is a historical completed gate as of version 0.5.0. Its responsive works
 - Keep `domain` and `solver` independent from HTTP routes. Preserve all source rows and semester context.
 - Do not push commits to GitHub without express user approval.
 
-Phases 0 through 4 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.
+Phases 0 through 5 are historical completed gates. Begin a later phase only when the user explicitly supplies its scope, and stop after the requested phase is independently reviewable.
